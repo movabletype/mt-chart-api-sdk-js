@@ -1,0 +1,36 @@
+{
+  "name": "mt-chart-api",
+  "description": "Movable Type Chart API SDK",
+  "version": "0.1.0",
+  "homepage": "https://github.com/movabletype/mt-chart-api-sdk-js",
+  "author": "Six Apart, Ltd.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/movabletype/mt-chart-api-sdk-js"
+  },
+  "bugs": {
+    "url": ""
+  },
+  "licenses": [
+    {
+      "type": "",
+      "url": ""
+    }
+  ],
+  "main": "lib/chart-api",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "devDependencies": {
+    "grunt-contrib-concat": "~0.1.2",
+    "grunt-contrib-uglify": "~0.1.1",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-watch": "~0.2.0",
+    "grunt": "~0.4.1",
+    "matchdep": "~0.1.2",
+    "grunt-preprocess": "~2.3.0",
+    "grunt-contrib-cssmin": "~0.6.0",
+    "grunt-contrib-clean": "~0.4.1",
+    "grunt-contrib-copy": "~0.4.1"
+  },
+}
