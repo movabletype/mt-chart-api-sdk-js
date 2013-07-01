@@ -32,7 +32,7 @@ module.exports = function (grunt) {
       }
     },
     clean: {
-      build: ['dist']
+      build: ['lib']
     },
     copy: {
       build: {
