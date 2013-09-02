@@ -246,7 +246,7 @@ ChartAPI.Graph.morris.Base.prototype.getTotalCount_ = function (data, index) {
   var total = 0,
     str = 'y' + (index || '');
   $.each(data, function (i, v) {
-    total = total + (v[str] || v.value || 0);
+    total = total + (parseInt(v[str] || v.value, 10) || 0);
   });
   return total;
 };
