@@ -37,11 +37,10 @@ module.exports = function (grunt) {
     copy: {
       build: {
         files: [{
-            expand: true,
-            src: ['deps/**'],
-            dest: 'lib/'
-          }
-        ]
+          expand: true,
+          src: ['deps/**'],
+          dest: 'lib/'
+        }]
       }
     },
     cssmin: {
@@ -80,6 +79,16 @@ module.exports = function (grunt) {
       all: {
         files: {
           'lib/mtchart.min.js': ['lib/mtchart.js']
+        }
+      }
+    },
+    jasmine: {
+      test: {
+        src: 'lib/core/mtchart.core.js',
+        options: {
+          keepRunner: true,
+          specs: 'spec/**/*.js',
+          helpers: grunt.file.expand('sample/js/*.js').concat(grunt.file.expand('deps/*.js')).concat(['spec_helpers/moment.min.js'])
         }
       }
     }
