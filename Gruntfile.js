@@ -1,6 +1,11 @@
 module.exports = function (grunt) {
   'use strict';
-  require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
+
+  require('matchdep').filterDev('grunt-*').forEach(function (name) {
+    if (!/template/.test(name)) {
+      grunt.loadNpmTasks(name);
+    }
+  });
 
   // Project configuration.
   grunt.initConfig({
@@ -83,12 +88,23 @@ module.exports = function (grunt) {
       }
     },
     jasmine: {
+      options: {
+        keepRunner: true,
+        specs: 'spec/**/*.js',
+        helpers: grunt.file.expand('sample/js/*.js').concat(grunt.file.expand('deps/*.js')).concat(['spec_helpers/moment.min.js'])
+      },
       test: {
+        src: 'lib/core/mtchart.core.js'
+      },
+      coverage: {
         src: 'lib/core/mtchart.core.js',
         options: {
-          keepRunner: true,
-          specs: 'spec/**/*.js',
-          helpers: grunt.file.expand('sample/js/*.js').concat(grunt.file.expand('deps/*.js')).concat(['spec_helpers/moment.min.js'])
+          host: 'http://localhost:3000/',
+          template: require('grunt-template-jasmine-istanbul'),
+          templateOptions: {
+            coverage: 'test/coverage/coverage.json',
+            report: 'test/coverage',
+          }
         }
       }
     }
