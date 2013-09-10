@@ -26,28 +26,28 @@ ChartAPI.Data.getData = function (obj, $container, callback, that) {
       callback(cloneData);
     })
       .fail(function (e) {
-      status = {
-        '404': 'Data is not found',
-        '403': 'Data is forbidden to access'
-      };
-      def = 'Some error occured in the data fetching process';
-      errorClassName = e.status ? 'error-' + e.status : 'error-unknown';
-      if (that) {
-        that.$errormsg = jQuery('<div class="error ' + errorClassName + '">' + (status[e.status] || def) + '</div>')
-          .appendTo($container);
-      }
-    })
+        status = {
+          '404': 'Data is not found',
+          '403': 'Data is forbidden to access'
+        };
+        def = 'Some error occured in the data fetching process';
+        errorClassName = e.status ? 'error-' + e.status : 'error-unknown';
+        if (that) {
+          that.$errormsg = jQuery('<div class="error ' + errorClassName + '">' + (status[e.status] || def) + '</div>')
+            .appendTo($container);
+        }
+      })
       .always(function () {
-      if (that && that.$progress && that.$progress.parent().length > 0) {
-        that.$progress.remove();
-      }
-    })
+        if (that && that.$progress && that.$progress.parent().length > 0) {
+          that.$progress.remove();
+        }
+      })
       .progress(function () {
-      if (that && (!that.$progress || that.$progress.parent().length === 0)) {
-        that.$progress = jQuery('<div class="progress">fetching data...</div>')
-          .appendTo($container);
-      }
-    });
+        if (that && (!that.$progress || that.$progress.parent().length === 0)) {
+          that.$progress = jQuery('<div class="progress">fetching data...</div>')
+            .appendTo($container);
+        }
+      });
   }
 };
 /**
@@ -61,30 +61,38 @@ ChartAPI.Data.getData = function (obj, $container, callback, that) {
  */
 ChartAPI.Data.filterData = function (data, max, min, u, yLength, noConcat) {
   var str, hash = {};
-
   yLength = yLength || 1;
+
   jQuery.each(data, function (i, v) {
     var td, key;
     td = ChartAPI.Date.parse(v.x);
     if (td && td >= min && td <= max) {
-      if (noConcat) {
-        key = ChartAPI.Date.createId(td, 'daily');
-        hash[key] = v;
-      } else {
+      key = noConcat ? ChartAPI.Date.createId(td, 'daily') : function () {
         if (u === 'weekly') {
           td = ChartAPI.Date.getWeekStartday(td);
         }
-        key = ChartAPI.Date.createId(td, u);
-        if (hash[key]) {
-          for (i = 0; i < yLength; i++) {
-            str = i ? 'y' + i : 'y';
-            hash[key][str] = parseInt(hash[key][str], 10) + parseInt(v[str], 10);
-          }
-        } else { /* clone the object to prevent changing original */
-          hash[key] = jQuery.extend({}, v);
-        }
+        return ChartAPI.Date.createId(td, u);
+      }();
+
+      hash[key] = hash[key] && !noConcat ? hash[key] : {
+        x: v.x
+      };
+      for (i = 0; i < yLength; i++) {
+        str = i ? 'y' + i : 'y';
+        hash[key][str] = (hash[key][str] || 0) + ChartAPI.Data.parseFloat(v[str], 10);
       }
     }
   });
+
   return hash;
 };
+
+/**
+ * allow parse string with comma
+ * @param {string|Number}
+ * @return {number}
+ */
+ChartAPI.Data.parseFloat = function (str) {
+  str = (str + '').replace(/,/g, '');
+  return parseFloat(str, 10);
+}
