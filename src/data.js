@@ -8,46 +8,64 @@ ChartAPI.Data = {};
  * @param {=Object} current context
  * @return {object}
  */
-ChartAPI.Data.getData = function (obj, $container, callback, that) {
+ChartAPI.Data.getData = function (obj, $container, callback, ctx) {
   var cloneData, status, def, errorClassName;
+
+  /**
+   * simple clone method which is supported only primitives, array and object
+   */
+
+  function clone(data) {
+    var result, $ = jQuery;
+    if (typeof data === 'string' && typeof data === 'number') {
+      result = data
+    } else if ($.isArray(data)) {
+      result = [];
+      $.each(data, function (i, d) {
+        result.push(clone(d));
+      });
+    } else if ($.isPlainObject(data)) {
+      result = {};
+      $.each(data, function (k, v) {
+        result[k] = clone(v);
+      });
+    } else {
+      result = data;
+    }
+    return result;
+  }
+
   if (obj) {
     obj.done(function (data) {
-      if (!cloneData) {
-        if (typeof data === 'string') {
-          cloneData = data.toString();
-        } else if (jQuery.isArray(data)) {
-          cloneData = jQuery.map(data, function (v) {
-            return jQuery.extend({}, v);
-          });
-        } else {
-          cloneData = jQuery.extend({}, data);
-        }
+      if (!cloneData && data) {
+        cloneData = clone(data);
       }
       callback(cloneData);
-    })
-      .fail(function (e) {
+    });
+
+    if (ctx && $container) {
+      obj.fail(function (e) {
         status = {
           '404': 'Data is not found',
           '403': 'Data is forbidden to access'
         };
         def = 'Some error occured in the data fetching process';
         errorClassName = e.status ? 'error-' + e.status : 'error-unknown';
-        if (that) {
-          that.$errormsg = jQuery('<div class="error ' + errorClassName + '">' + (status[e.status] || def) + '</div>')
-            .appendTo($container);
-        }
+        ctx.$errormsg = jQuery('<div class="error ' + errorClassName + '">' + (status[e.status] || def) + '</div>')
+          .appendTo($container);
       })
-      .always(function () {
-        if (that && that.$progress && that.$progress.parent().length > 0) {
-          that.$progress.remove();
-        }
-      })
-      .progress(function () {
-        if (that && (!that.$progress || that.$progress.parent().length === 0)) {
-          that.$progress = jQuery('<div class="progress">fetching data...</div>')
-            .appendTo($container);
-        }
-      });
+        .always(function () {
+          if (ctx.$progress && ctx.$progress.parent().length > 0) {
+            ctx.$progress.remove();
+          }
+        })
+        .progress(function () {
+          if (!ctx.$progress || ctx.$progress.parent().length === 0) {
+            ctx.$progress = jQuery('<div class="progress">fetching data...</div>')
+              .appendTo($container);
+          }
+        });
+    }
   }
 };
 /**
@@ -95,4 +113,4 @@ ChartAPI.Data.filterData = function (data, max, min, u, yLength, noConcat) {
 ChartAPI.Data.parseFloat = function (str) {
   str = (str + '').replace(/,/g, '');
   return parseFloat(str, 10);
-}
+};
