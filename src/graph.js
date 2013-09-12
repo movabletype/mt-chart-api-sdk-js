@@ -61,7 +61,7 @@ ChartAPI.Graph = function (config, range) {
     }
   }, this);
 
-  if (config.autoResize) {
+  if (this.config.autoResize) {
     $(window).on('orientationchange debouncedresize', this.updateFunc);
   }
 
