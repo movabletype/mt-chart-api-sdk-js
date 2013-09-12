@@ -20,20 +20,16 @@ module.exports = function (config) {
         pattern: 'sample/js/*.js',
         watched: false
       }, {
-        pattern: 'deps/*.js',
-        watched: false
-      }, {
-        pattern: 'lib/core/mtchart.core.js',
+        pattern: 'lib/mtchart.js',
         watched: false
       },
-      'spec/*'
+      'spec/*.json',
+      'spec/*.js'
     ],
 
 
     // list of files to exclude
-    exclude: [
-      '**/*.preprocess'
-    ],
+    exclude: [],
 
 
     // test results reporter to use
