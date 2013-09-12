@@ -4,3 +4,4 @@ dist/
 _SpecRunner.html
 .grunt
 test/
+spec/graph_data.json
