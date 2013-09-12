@@ -7,6 +7,8 @@ module.exports = function (grunt) {
     }
   });
 
+  var moment = require('moment');
+
   // Project configuration.
   grunt.initConfig({
     watch: {
@@ -33,6 +35,18 @@ module.exports = function (grunt) {
       all: {
         files: {
           'lib/mtchart.js': 'src/build/mtchart.js'
+        }
+      },
+      jasmine: {
+        options: {
+          inline: true,
+          context: {
+            today: moment().format('YYYY-MM-DD'),
+            todayISO: moment().toISOString()
+          }
+        },
+        files: {
+          'spec/graph_data.json': 'spec/graph_data.preprocess'
         }
       }
     },
@@ -87,8 +101,29 @@ module.exports = function (grunt) {
         }
       }
     },
+    connect: {
+      jasmine: {
+        options: {
+          hostname: 'localhost',
+          port: 9001,
+          keepalive: true,
+          middleware: function (connect, options) {
+            return [
+              function (req, res, next) {
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Access-Control-Allow-Methods', '*');
+                next();
+              },
+              connect.static(options.base),
+              connect.directory(options.base)
+            ];
+          }
+        }
+      }
+    },
     jasmine: {
       options: {
+        host: 'http://localhost:9001/',
         keepRunner: true,
         specs: 'spec/**/*.js',
         helpers: grunt.file.expand('sample/js/*.js').concat(grunt.file.expand('deps/*.js')).concat(['spec_helpers/moment.min.js'])
@@ -99,13 +134,17 @@ module.exports = function (grunt) {
       coverage: {
         src: 'lib/core/mtchart.core.js',
         options: {
-          host: 'http://localhost:3000/',
           template: require('grunt-template-jasmine-istanbul'),
           templateOptions: {
             coverage: 'test/coverage/coverage.json',
             report: 'test/coverage',
           }
         }
+      }
+    },
+    karma: {
+      jasmine: {
+        configFile: 'karma.config.js'
       }
     }
   });
