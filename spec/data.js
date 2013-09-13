@@ -108,10 +108,10 @@ describe('data', function () {
       })
     });
 
-    it('getData fail 403', function () {
+    it('getData fail unknown', function () {
       var flag, data, obj = $.Deferred(),
         error = {
-          status: '401'
+          status: null
         };
       var ctx = {};
       var $container = $('<div id="foobar"></div>');
@@ -123,7 +123,44 @@ describe('data', function () {
       });
       runs(function () {
         expect(ctx.$errormsg.length).toBeTruthy();
+        expect(ctx.$errormsg.hasClass('error-unknown')).toBe(true);
         expect(ctx.$errormsg.text()).toEqual('Some error occured in the data fetching process');
+      })
+    });
+
+    it('getData on progress', function () {
+      var flag, flag2, data, obj = $.Deferred(),
+        str = 'lorem ipsum';
+      var ctx = {};
+      var $container = $('<div id="foobar"></div>');
+
+      obj.notify();
+
+      ChartAPI.Data.getData(obj, $container, function () {
+        flag2 = true;
+      }, ctx);
+
+      obj.progress(function () {
+        flag = true;
+      });
+
+      waitsFor(function () {
+        return flag;
+      })
+
+      runs(function () {
+        expect(ctx.$progress).toBeDefined();
+        expect($container.find(ctx.$progress).length).toBeTruthy();
+        expect(ctx.$progress.text()).toEqual('fetching data...')
+        obj.resolve(data);
+      });
+
+      waitsFor(function () {
+        return flag2;
+      });
+
+      runs(function () {
+        expect($container.find(ctx.$progress).length).toBeFalsy();
       })
     });
   });
