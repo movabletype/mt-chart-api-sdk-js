@@ -16,7 +16,7 @@ describe('data', function () {
       });
     });
 
-    xit('array', function () {
+    it('array', function () {
       var flag, data, obj = $.Deferred(),
         str = ['lorem', 'ipsum', {
           foo: 'bar'
@@ -69,6 +69,63 @@ describe('data', function () {
         expect(str[2][0].bar[1].baz).toEqual('zzz');
       });
     });
+
+    it('getData fail 404', function () {
+      var flag, data, obj = $.Deferred(),
+        error = {
+          status: '404'
+        };
+      var ctx = {};
+      var $container = $('<div id="foobar"></div>');
+
+      obj.reject(error);
+      ChartAPI.Data.getData(obj, $container, null, ctx);
+      waitsFor(function () {
+        return ctx.$errormsg
+      });
+      runs(function () {
+        expect(ctx.$errormsg.length).toBeTruthy();
+        expect(ctx.$errormsg.text()).toEqual('Data is not found');
+      })
+    })
+
+    it('getData fail 403', function () {
+      var flag, data, obj = $.Deferred(),
+        error = {
+          status: '403'
+        };
+      var ctx = {};
+      var $container = $('<div id="foobar"></div>');
+
+      obj.reject(error);
+      ChartAPI.Data.getData(obj, $container, null, ctx);
+      waitsFor(function () {
+        return ctx.$errormsg
+      });
+      runs(function () {
+        expect(ctx.$errormsg.length).toBeTruthy();
+        expect(ctx.$errormsg.text()).toEqual('Data is forbidden to access');
+      })
+    });
+
+    it('getData fail 403', function () {
+      var flag, data, obj = $.Deferred(),
+        error = {
+          status: '401'
+        };
+      var ctx = {};
+      var $container = $('<div id="foobar"></div>');
+
+      obj.reject(error);
+      ChartAPI.Data.getData(obj, $container, null, ctx);
+      waitsFor(function () {
+        return ctx.$errormsg
+      });
+      runs(function () {
+        expect(ctx.$errormsg.length).toBeTruthy();
+        expect(ctx.$errormsg.text()).toEqual('Some error occured in the data fetching process');
+      })
+    });
   });
 
   describe('filterData', function () {
@@ -106,10 +163,10 @@ describe('data', function () {
           var yMap = {
             daily: function () {
               var hash = {};
-              var dayClone = moment(day)
+              var dayClone = moment(day);
               for (var j = 0; j <= 60; j++) {
                 hash[dayClone.subtract('days', 1).format('YYYYMMDD')] = j;
-              };
+              }
               return hash;
             }(),
             weekly: {
@@ -125,7 +182,7 @@ describe('data', function () {
             yearly: {
               2013: 60 + 126 + 175 + 90
             }
-          }
+          };
 
           expect(_.size(ret)).toEqual(map[unit]);
           var x;
@@ -151,7 +208,7 @@ describe('data', function () {
             }
             expect(x.isBefore(maxPlus)).toBe(true);
             expect(x.isAfter(minMinus)).toBe(true);
-          })
+          });
         });
       });
 
@@ -163,10 +220,10 @@ describe('data', function () {
 
         var expected = function () {
           var hash = {};
-          var dayClone = moment(day)
+          var dayClone = moment(day);
           for (var j = 0; j <= 60; j++) {
             hash[dayClone.subtract('days', 1).format('YYYYMMDD')] = j;
-          };
+          }
           hash[max.format('YYYYMMDD')] = 123;
           return hash;
         }();
@@ -176,7 +233,7 @@ describe('data', function () {
         _.each(ret, function (value, key) {
           expect(value.y).toEqual(expected[key]);
         });
-      })
+      });
     });
 
     describe('y formats', function () {
@@ -230,7 +287,7 @@ describe('data', function () {
         var ret = MT.ChartAPI.Data.filterData(data, max.toDate(), min.toDate(), 'daily');
         expect(ret[moment().format('YYYYMMDD')].y).toEqual(900000.111);
       });
-    })
+    });
 
     describe('yLength', function () {
       var i, data,
@@ -271,5 +328,5 @@ describe('data', function () {
         expect(ret['20130901'].y2).toEqual(14 * 3);
       });
     });
-  })
-})
+  });
+});

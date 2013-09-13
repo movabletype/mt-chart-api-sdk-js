@@ -51,11 +51,11 @@ ChartAPI.Range.calcDate = function (s, e, length, maxLength, unit, dataType, aut
   }
 
   if (!s) {
-    length = unit.match(/(?:daily|hourly)/) ? length - 1 : length;
+    length = unit.match(/(?:hourly)/) ? length - 1 : length;
     s = ChartAPI.Range.getStartDate(ChartAPI.Date.calcDate(e, length, unit, true), unit);
   }
   if (!e) {
-    length = unit.match(/(?:daily|hourly)/) ? length - 1 : length;
+    length = unit.match(/(?:hourly)/) ? length - 1 : length;
     e = ChartAPI.Range.getEndDate(ChartAPI.Date.calcDate(s, length, unit, false), unit);
   }
   if (e > new Date()) {
@@ -289,7 +289,8 @@ ChartAPI.Range.getLength = function (s, e, u) {
       length = Math.ceil((ChartAPI.Date.getWeekStartday(e) - ChartAPI.Date.getWeekStartday(s)) / (7 * 24 * 60 * 60 * 1000));
     },
     'daily': function () {
-      length = Math.ceil((e - s) / (24 * 60 * 60 * 1000));
+      s = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+      length = Math.ceil((e - s) / (24 * 60 * 60 * 1000)) - 1;
     },
     'hourly': function () {
       length = Math.ceil((e - s) / (60 * 60 * 1000));

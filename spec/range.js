@@ -56,7 +56,7 @@ describe('range', function () {
         unit: 'daily'
       }
       var range = ChartAPI.Range.factory(opt);
-      expect(range.start).toEqual(moment().subtract('day', 8).startOf('day').toDate());
+      expect(range.start).toEqual(moment().subtract('day', 9).startOf('day').toDate());
       defaultCheck(range, opt);
     });
 
@@ -108,7 +108,7 @@ describe('range', function () {
         length: 5
       });
       expect(range.min).toEqual(moment(range.start).startOf('day').toDate());
-      defaultCheck(range, 5, 'daily', moment().subtract('day', 17).endOf('day').toDate());
+      defaultCheck(range, 5, 'daily', moment().subtract('day', 16).endOf('day').toDate());
     });
 
     it('yearly', function () {
@@ -181,7 +181,7 @@ describe('range', function () {
         length: 5
       });
       expect(range.max).toEqual(moment(range.end).endOf('day').toDate());
-      defaultCheck(range, 5, 'daily', moment().subtract('day', 23).startOf('day').toDate());
+      defaultCheck(range, 5, 'daily', moment().subtract('day', 24).startOf('day').toDate());
     });
 
     it('yearly', function () {
@@ -313,11 +313,11 @@ describe('range', function () {
         var range = ChartAPI.Range.factory(opt);
         expect(range.maxLength).toEqual(9);
         expect(range.length).toEqual(9);
-        expect(range.start).toEqual(moment().subtract('day', 10).startOf('day').toDate());
+        expect(range.start).toEqual(moment().subtract('day', 11).startOf('day').toDate());
         expect(range.end).toEqual(opt.end);
         expect(range.unit).toEqual(opt.unit);
         expect(range.max).toEqual(moment(opt.end).endOf('day').toDate());
-        expect(range.min).toEqual(moment().subtract('day', 10).startOf('day').toDate());
+        expect(range.min).toEqual(moment().subtract('day', 11).startOf('day').toDate());
         expect(range.dataType).toEqual('timeline');
         expect(range.isTimeline).toBe(true);
       });
