@@ -17,9 +17,7 @@ ChartAPI.Data.getData = function (obj, $container, callback, ctx) {
 
   function clone(data) {
     var result, $ = jQuery;
-    if (typeof data === 'string' && typeof data === 'number') {
-      result = data
-    } else if ($.isArray(data)) {
+    if ($.isArray(data)) {
       result = [];
       $.each(data, function (i, d) {
         result.push(clone(d));
@@ -55,12 +53,12 @@ ChartAPI.Data.getData = function (obj, $container, callback, ctx) {
           .appendTo($container);
       })
         .always(function () {
-          if (ctx.$progress && ctx.$progress.parent().length > 0) {
+          if (ctx.$progress) {
             ctx.$progress.remove();
           }
         })
         .progress(function () {
-          if (!ctx.$progress || ctx.$progress.parent().length === 0) {
+          if (!ctx.$progress) {
             ctx.$progress = jQuery('<div class="progress">fetching data...</div>')
               .appendTo($container);
           }
