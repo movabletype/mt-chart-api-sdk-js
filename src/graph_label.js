@@ -8,7 +8,7 @@
 ChartAPI.Graph.Labels = function ($container, yLength, template) {
   var i, key;
 
-  this.$labelContainer = $('<div class = "graph-labels"></div>');
+  this.$labelContainer = $('<div class="graph-labels"></div>');
   if (template) {
     $('<div class="graph-label"></div>').html(template).prependTo(this.$labelContainer);
   }
@@ -45,7 +45,7 @@ ChartAPI.Graph.Labels.prototype.getTotalObject = function (i) {
  */
 ChartAPI.Graph.Labels.Total = function (container, index) {
   this.index = index;
-  this.$totalContainer = jQuery('<div class = "graph-total"></div>').appendTo(container);
+  this.$totalContainer = jQuery('<div class="graph-total"></div>').appendTo(container);
 };
 
 /**
@@ -53,7 +53,7 @@ ChartAPI.Graph.Labels.Total = function (container, index) {
  * @param {!number} total count
  */
 ChartAPI.Graph.Labels.Total.prototype.createTotalCount = function (count) {
-  jQuery('<span class="graph-total-count graph-total-count-y"' + (this.index || '') + '>' + count + '</span> ').appendTo(this.$totalContainer);
+  jQuery('<span class="graph-total-count graph-total-count-y' + (this.index || '') + '">' + count + '</span>').appendTo(this.$totalContainer);
 };
 
 /**

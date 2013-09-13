@@ -126,7 +126,7 @@ ChartAPI.Graph.morris.Base.prototype.build_ = function (Morris, data, config, ra
 
   // shows percentage as Y label when graph method is donut
   if (method === 'donut') {
-    var totalCount = this.getTotalCount_(data, i);
+    var totalCount = this.getTotalCount_(data, 0);
 
     graphConfig.formatter = function (y) {
       var str = y = (y + '').replace(/,/g, '');
@@ -263,7 +263,7 @@ ChartAPI.Graph.morris.Base.prototype.getTotalCount_ = function (data, index) {
   $.each(data, function (i, v) {
     num = v[str] || v.value || 0;
     if (typeof num === 'string') {
-      num = parseFloat(num.replace(/,/g, ''), 10);
+      num = ChartAPI.Data.parseFloat(num);
     }
     total = total + num;
   });

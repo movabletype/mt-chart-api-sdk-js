@@ -26,7 +26,7 @@ ChartAPI.Graph.easel.Base.prototype.buildCanvas = function (createjs) {
   this.width = parseInt((this.config.width || this.$container.width()), 10) || 300;
   this.height = parseInt((this.config.height || this.$container.height()), 10) || 300;
 
-  this.$canvas = $('<canvas id="' + this.config.id + '" class="graph-canvas" width="' + this.width + '" height="' + this.height + '">').appendTo(this.$container);
+  this.$canvas = this.$graphEl = $('<canvas id="' + this.config.id + '" class="graph-canvas" width="' + this.width + '" height="' + this.height + '">').appendTo(this.$container);
   this.canvas = this.$canvas.get(0);
   this.canvas.getContext('2d');
 

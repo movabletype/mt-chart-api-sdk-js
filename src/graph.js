@@ -31,23 +31,24 @@ ChartAPI.Graph = function (config, range) {
 
   this.graphData = {};
   this.graphData[this.range.unit] = $.Deferred();
+  this.graphData[this.range.unit].notify();
 
   this.getData($.proxy(function (data) {
     this.graphData[this.range.unit].resolve(this.generateGraphData(data));
   }, this));
 
-  this.$graphContainer = $('<div id="' + this.config.id + '-container" class="graph-container">');
+  var $graphContainer = this.$graphContainer = $('<div id="' + this.config.id + '-container" class="graph-container">');
 
   /**
    * @return {jQuery} return jQuery object for chaining
    * update graph
    */
-  this.$graphContainer.on('UPDATE', $.proxy(function (e, newRange, unit) {
+  $graphContainer.on('UPDATE', $.proxy(function (e, newRange, unit) {
     this.update_(newRange, unit);
-    return $(this.$graphContainer);
+    return $graphContainer;
   }, this));
 
-  this.$graphContainer.on('REMOVE', $.proxy(function () {
+  $graphContainer.on('REMOVE', $.proxy(function () {
     this.remove_();
   }, this));
 
@@ -61,54 +62,60 @@ ChartAPI.Graph = function (config, range) {
     }
   }, this);
 
-  if (this.config.autoResize) {
-    $(window).on('orientationchange debouncedresize', this.updateFunc);
-  }
+  this.setAutoResizeUpdate();
 
   /**
    * @return {jQuery} return jQuery object for chaining
    * return back the graph data range to callback
    */
-  this.$graphContainer.on('GET_DATA_RANGE', $.proxy(function (e, callback) {
-    $.proxy(this.getData($.proxy(function (data) {
-      callback(ChartAPI.Range.getDataRange(data, this.range.isTimeline));
-    }, this), this));
-    return $(this.$graphContainer);
+  var isTimeline = this.range.isTimeline;
+  $graphContainer.on('GET_DATA_RANGE', $.proxy(function (e, callback) {
+    this.getData(function (data) {
+      callback(ChartAPI.Range.getDataRange(data, isTimeline));
+    });
+    return $graphContainer;
   }, this));
 
   /**
    * @return {jQuery} return jQuery object for chaining
    * return back the graph label array to callback
    */
-  this.$graphContainer.on('GET_LABEL', $.proxy(function (e, indexArray, callback) {
+  $graphContainer.on('GET_LABEL', $.proxy(function (e, indexArray, callback) {
     $.proxy(this.getData($.proxy(function (data) {
       callback(this.getDataLabelByIndex(indexArray, data));
     }, this), this));
-    return $(this.$graphContainer);
+    return $graphContainer;
   }, this));
 
   /**
    * append graph container to the desinated container
    * @return {jQuery} return jQuery object for chaining
    */
-  this.$graphContainer.on('APPEND_TO', $.proxy(function (e, container) {
-    this.$graphContainer.appendTo(container);
+  $graphContainer.on('APPEND_TO', $.proxy(function (e, container) {
+    $graphContainer.appendTo(container);
+
     this.graphData[this.range.unit].done($.proxy(function (data) {
-      var filteredData;
-      if (this.range.isTimeline) {
-        filteredData = $.grep(data, $.proxy(function (v) {
-          return this.range.start <= v.timestamp && v.timestamp <= this.range.end;
-        }, this));
-      } else {
-        filteredData = data.slice(this.range.min, this.range.max + 1);
-      }
-      this.draw_(filteredData);
+      this.draw_(data, this.range, this.config);
     }, this));
-    return $(this.$graphContainer);
+
+    return $graphContainer;
   }, this));
 
   return this.$graphContainer;
 };
+
+ChartAPI.Graph.prototype.sliceData = function (data, range) {
+  return range.isTimeline ? $.grep(data, $.proxy(function (v) {
+    return range.min <= v.timestamp && v.timestamp <= range.max;
+  }, this)) : data.slice(range.min, range.max + 1);
+}
+
+ChartAPI.Graph.prototype.setAutoResizeUpdate = function () {
+  if (this.config.autoResize) {
+    $(window).on('orientationchange debouncedresize', this.updateFunc);
+  }
+};
+
 
 /**
  * call getData function for getting graph JSON data
@@ -138,7 +145,7 @@ ChartAPI.Graph.prototype.getDataLabelByIndex = function (indexArray, data) {
  * @return {number} return the number of total count in current range
  */
 ChartAPI.Graph.prototype.getTotalCount_ = function (data, index) {
-  var total = 0,
+  var total = index,
     str = 'y' + (index || '');
   $.each(data, function (i, v) {
     total = total + parseInt((v[str] || v.value || 0), 10);
@@ -191,7 +198,8 @@ ChartAPI.Graph.getChartColors = function (colors, type) {
 
 ChartAPI.Graph.cachedChartColors = {};
 ChartAPI.Graph.getCachedChartColors = function (graphId, colors, type) {
-  return ChartAPI.Graph.cachedChartColors[graphId] = ChartAPI.Graph.cachedChartColors[graphId] || ChartAPI.Graph.getChartColors(colors, type);
+  ChartAPI.Graph.cachedChartColors[graphId] = ChartAPI.Graph.cachedChartColors[graphId] || ChartAPI.Graph.getChartColors(colors, type);
+  return ChartAPI.Graph.cachedChartColors[graphId];
 };
 
 /**
@@ -200,37 +208,17 @@ ChartAPI.Graph.getCachedChartColors = function (graphId, colors, type) {
  * @param {=string} graph type (bar|line|area|donut)
  * @return nothing
  */
-ChartAPI.Graph.prototype.draw_ = function (data) {
-  var arr = this.config.type.split('.');
-  var lib = arr[0];
-  var method = arr[1];
-  var config = this.config;
+ChartAPI.Graph.prototype.draw_ = function (data, range, config) {
+  data = this.sliceData(data, range);
 
-  if (config.label) {
-    if (this.labelTemplate) {
-      this.generateLabel(this.labelTemplate);
-    } else {
-      if (config.label.template) {
-        var labelTemplate = config.label.template;
-        if (window.require && typeof require === 'function') {
-          var templateType = config.label.type;
-          require([templateType + '!' + config.staticPath + labelTemplate], $.proxy(function (template) {
-            this.labelTemplate = template;
-            this.generateLabel(template);
-          }, this));
-        } else {
-          var dfd = $.get(config.staticPath + labelTemplate, 'text');
-          ChartAPI.Data.getData(dfd, this.$graphContainer, $.proxy(function (template) {
-            this.labelTemplate = template;
-            this.generateLabel(template);
-          }, this));
-        }
-      } else {
-        this.labelTemplate = '<span class="graph-label-label"></span>';
-        this.generateLabel(this.labelTemplate);
-      }
-    }
-  }
+  var arr = config.type.split('.'),
+    lib = arr[0],
+    method = arr[1],
+    labelTemplate = this.labelTemplate;
+
+  var finalize = $.proxy(function () {
+    this.generateLabel(labelTemplate, config, range);
+  }, this);
 
   if (config.fallback && config.fallback.test) {
     if (!ChartAPI.Graph.test[config.fallback.test]()) {
@@ -240,12 +228,37 @@ ChartAPI.Graph.prototype.draw_ = function (data) {
       config = $.extend(config, config.fallback);
     }
   }
-
   if (config.chartColors && typeof config.chartColors === 'string') {
     config.chartColors = config.chartColors.split(',');
   }
 
-  this.graphObject = ChartAPI.Graph[lib][method](data, config, this.range, this.$graphContainer);
+  this.graphObject = ChartAPI.Graph[lib][method](data, config, range, this.$graphContainer);
+
+  if (config.label) {
+    if (labelTemplate) {
+      finalize(labelTemplate);
+    } else {
+      if (config.label.template) {
+        labelTemplate = config.label.template;
+        if (window.require && typeof require === 'function') {
+          var templateType = config.label.type;
+          require([templateType + '!' + config.staticPath + labelTemplate], $.proxy(function (template) {
+            labelTemplate = template;
+            finalize();
+          }, this));
+        } else {
+          var dfd = $.get(config.staticPath + labelTemplate, 'text');
+          ChartAPI.Data.getData(dfd, this.$graphContainer, $.proxy(function (template) {
+            labelTemplate = template;
+            finalize();
+          }, this));
+        }
+      } else {
+        labelTemplate = '<span class="graph-label-label"></span>';
+        finalize();
+      }
+    }
+  }
 };
 
 ChartAPI.Graph.test = {};
@@ -280,45 +293,42 @@ ChartAPI.Graph.test.vml = function () {
   return (svgSupported || vmlSupported);
 };
 
-ChartAPI.Graph.prototype.generateLabel = function (template) {
-  var data = this.config.label.template && this.config.label.data ? this.config.label.data : {},
-    yLength = this.config.label.yLength || this.config.yLength,
+ChartAPI.Graph.prototype.generateLabel = function (template, config, range) {
+  var data = config.label.data ? config.label.data : {},
+    yLength = config.label.yLength || config.yLength,
+    labels,
     dfd;
 
-  var finalize = $.proxy(function () {
-    this.labels = new ChartAPI.Graph.Labels(this.$graphContainer, yLength, template);
-
-    this.getData($.proxy(function (data) {
-      for (var i = 0; i < yLength; i++) {
-        if (!this.config.label.hideTotalCount) {
-          this.labels.getTotalObject(i).createTotalCount(this.getTotalCount_(data, i));
-        }
-        if (!this.config.label.hideDeltaCount && this.range.isTimeline) {
-          this.labels.getTotalObject(i).createDeltaCount(this.getDelta_(data, i));
-        }
-      }
-    }, this));
-  }, this);
-
   if (data && typeof data === 'string') {
-    dfd = $.getJSON(this.config.staticPath + data);
+    dfd = $.getJSON(config.staticPath + data);
   } else {
     dfd = $.Deferred();
     dfd.resolve(data);
   }
 
-  dfd.done(function (data) {
+  dfd.done($.proxy(function (data) {
     if (template && typeof template === 'function') {
       template = template(data);
-      finalize();
-    } else if (window._) {
+    } else if ( !! window._) {
       template = _.template(template, data);
-      finalize();
     } else {
       template = template;
-      finalize();
     }
-  });
+
+    labels = this.labels = new ChartAPI.Graph.Labels(this.$graphContainer, yLength, template);
+
+    this.getData($.proxy(function (data) {
+      for (var i = 0; i < yLength; i++) {
+        if (!config.label.hideTotalCount) {
+          labels.getTotalObject(i).createTotalCount(this.getTotalCount_(data, i));
+        }
+        if (!config.label.hideDeltaCount && range.isTimeline) {
+          labels.getTotalObject(i).createDeltaCount(this.getDelta_(data, i));
+        }
+      }
+    }, this));
+
+  }, this));
 };
 
 /**
@@ -327,7 +337,6 @@ ChartAPI.Graph.prototype.generateLabel = function (template) {
  * @param {=string} graph unit type (yearly|quater|monthly|weekly|daily|hourly)
  */
 ChartAPI.Graph.prototype.update_ = function (newRange, unit) {
-  var that = this;
   newRange = newRange || [];
   if (this.graphObject && this.graphObject.remove) {
     this.graphObject.remove();
@@ -346,15 +355,7 @@ ChartAPI.Graph.prototype.update_ = function (newRange, unit) {
   });
 
   this.graphData[this.range.unit].done($.proxy(function (data) {
-    var filteredData;
-    if (that.range.isTimeline) {
-      filteredData = $.grep(data, $.proxy(function (v) {
-        return this.range.min <= v.timestamp && v.timestamp <= this.range.max;
-      }, this));
-    } else {
-      filteredData = data.slice(this.range.min, this.range.max + 1);
-    }
-    this.draw_(filteredData);
+    this.draw_(data, this.range, this.config);
   }, this));
 };
 
