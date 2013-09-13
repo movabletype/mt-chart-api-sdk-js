@@ -126,7 +126,7 @@ module.exports = function (grunt) {
         host: 'http://localhost:9001/',
         keepRunner: true,
         specs: 'spec/**/*.js',
-        helpers: grunt.file.expand('sample/js/*.js').concat(grunt.file.expand('deps/*.js')).concat(['spec_helpers/moment.min.js'])
+        helpers: grunt.file.expand('sample/js/*.js').concat(grunt.file.expand('deps/*.js'))
       },
       test: {
         src: 'lib/core/mtchart.core.js'

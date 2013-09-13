@@ -14,16 +14,15 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [{
-        pattern: 'spec_helpers/moment.min.js',
-        watched: false
-      }, {
         pattern: 'sample/js/*.js',
         watched: false
       }, {
         pattern: 'lib/mtchart.js',
         watched: false
+      }, {
+        pattern: 'spec/*.json',
+        watched: false
       },
-      'spec/*.json',
       'spec/*.js'
     ],
 
