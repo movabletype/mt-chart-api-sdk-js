@@ -145,7 +145,7 @@ module.exports = function (grunt) {
     karma: {
       jasmine: {
         browsers: grunt.option('browser') ? [grunt.option('browser')] : ['Chrome'],
-        configFile: 'karma.config.js'
+        configFile: 'karma.conf.js'
       }
     }
   });
