@@ -7,10 +7,11 @@
   <link rel="stylesheet" href="css/jquery-ui.min.css">
   <link rel="stylesheet" href="../lib/mtchart.css">
   <link rel="stylesheet" href="css/sample.css">
-  <script src="js/jquery-1.9.1.min.js"></script>
+  <script src="js/jquery-1.10.2.min.js"></script>
   <script src="js/jquery-ui-1.10.1.min.js"></script>
+  <script src="js/moment.min.js"></script>
   <script src="js/underscore-min.js"></script>
-  <script src="../lib/mtchart.min.js"></script>
+  <script src="../lib/mtchart.js"></script>
 </head>
 <body>
   <div id="header"></div>
@@ -21,6 +22,17 @@
   </div>
   <div id="my-graph-build"></div>
   <script>
+    var today = moment();
+    var graph_data = [];
+    for(var i=0; i<180; i++){
+      graph_data.push({
+        xLabel: today.subtract('day',1).format('YYYYMMDD'),
+        x: today.format(),
+        y: Math.ceil(Math.random() * 100),
+        y1: Math.ceil(Math.random() * 100)
+      });
+    }
+
     new MT.ChartAPI.Graph({
       "type": "morris.line",
       "label": {
@@ -49,7 +61,9 @@
         new MT.ChartAPI.Graph(settings.graph, settings.range).trigger('APPEND_TO',[jQuery('#morris')]);
       }
     );
+
     jQuery.getJSON('data/settings_morris_4.json',function(settings){
+        settings.graph.data = graph_data
         new MT.ChartAPI.Graph(settings.graph, settings.range).trigger('APPEND_TO',[jQuery('#morris')]);
       }
     );
@@ -73,7 +87,11 @@
         new MT.ChartAPI.Graph(settings.graph, settings.range).trigger('APPEND_TO',[jQuery('#css')]);
       }
     );
-    MT.ChartAPI.Build('data/settings.json').appendTo(jQuery('#my-graph-build'));
+
+    jQuery.getJSON('data/settings.json',function(settings){
+      settings.graph.data = graph_data;
+      MT.ChartAPI.Build(settings).appendTo(jQuery('#my-graph-build'));
+    });
   </script>
 </body>
 </html>

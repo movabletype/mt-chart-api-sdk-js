@@ -23,12 +23,13 @@ body{
 }
 
 .mtchart-container{
-  width: 300px;
+  width: 100%;
   margin-right: 40px;
   margin-bottom: 40px;
 }
 
 .mtchart-container .graph-container {
+  width: 100%;
   float: none;
 }
 
