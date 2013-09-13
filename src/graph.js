@@ -320,10 +320,18 @@ ChartAPI.Graph.prototype.generateLabel = function (template, config, range) {
     this.getData($.proxy(function (data) {
       for (var i = 0; i < yLength; i++) {
         if (!config.label.hideTotalCount) {
-          labels.getTotalObject(i).createTotalCount(this.getTotalCount_(data, i));
+          var str = this.getTotalCount_(data, i);
+          if (!config.label.noComma) {
+            str = ChartAPI.Data.addCommas(str);
+          }
+          labels.getTotalObject(i).createTotalCount(str);
         }
         if (!config.label.hideDeltaCount && range.isTimeline) {
-          labels.getTotalObject(i).createDeltaCount(this.getDelta_(data, i));
+          var str = this.getDelta_(data, i);
+          if (!config.label.noComma) {
+            str = ChartAPI.Data.addCommas(str);
+          }
+          labels.getTotalObject(i).createDeltaCount(str);
         }
       }
     }, this));

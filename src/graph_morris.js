@@ -131,7 +131,7 @@ ChartAPI.Graph.morris.Base.prototype.build_ = function (Morris, data, config, ra
     graphConfig.formatter = function (y) {
       var str = y = (y + '').replace(/,/g, '');
       if (!config.noCommaOnYLabel) {
-        while (str != (str = str.replace(/^(-?\d+)(\d{3})/, '$1,$2')));
+        str = ChartAPI.Data.addCommas(str);
       }
       var percent = Math.ceil((y / totalCount * 10000)) / 100;
 
