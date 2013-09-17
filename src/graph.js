@@ -108,7 +108,7 @@ ChartAPI.Graph.prototype.sliceData = function (data, range) {
   return range.isTimeline ? $.grep(data, $.proxy(function (v) {
     return range.min <= v.timestamp && v.timestamp <= range.max;
   }, this)) : data.slice(range.min, range.max + 1);
-}
+};
 
 ChartAPI.Graph.prototype.setAutoResizeUpdate = function () {
   if (this.config.autoResize) {
@@ -209,16 +209,12 @@ ChartAPI.Graph.getCachedChartColors = function (graphId, colors, type) {
  * @return nothing
  */
 ChartAPI.Graph.prototype.draw_ = function (data, range, config) {
-  data = this.sliceData(data, range);
+  var graphData = this.sliceData(data, range);
 
   var arr = config.type.split('.'),
     lib = arr[0],
     method = arr[1],
     labelTemplate = this.labelTemplate;
-
-  var finalize = $.proxy(function () {
-    this.generateLabel(labelTemplate, config, range);
-  }, this);
 
   if (config.fallback && config.fallback.test) {
     if (!ChartAPI.Graph.test[config.fallback.test]()) {
@@ -232,7 +228,11 @@ ChartAPI.Graph.prototype.draw_ = function (data, range, config) {
     config.chartColors = config.chartColors.split(',');
   }
 
-  this.graphObject = ChartAPI.Graph[lib][method](data, config, range, this.$graphContainer);
+  this.graphObject = ChartAPI.Graph[lib][method](graphData, config, range, this.$graphContainer);
+
+  var finalize = $.proxy(function () {
+    this.generateLabel(labelTemplate, config, range, graphData);
+  }, this);
 
   if (config.label) {
     if (labelTemplate) {
@@ -293,7 +293,7 @@ ChartAPI.Graph.test.vml = function () {
   return (svgSupported || vmlSupported);
 };
 
-ChartAPI.Graph.prototype.generateLabel = function (template, config, range) {
+ChartAPI.Graph.prototype.generateLabel = function (template, config, range, graphData) {
   var data = config.label.data ? config.label.data : {},
     yLength = config.label.yLength || config.yLength,
     labels,
@@ -318,20 +318,21 @@ ChartAPI.Graph.prototype.generateLabel = function (template, config, range) {
     labels = this.labels = new ChartAPI.Graph.Labels(this.$graphContainer, yLength, template);
 
     this.getData($.proxy(function (data) {
+      var str, strD;
       for (var i = 0; i < yLength; i++) {
         if (!config.label.hideTotalCount) {
-          var str = this.getTotalCount_(data, i);
+          str = this.getTotalCount_(data, i);
           if (!config.label.noComma) {
             str = ChartAPI.Data.addCommas(str);
           }
           labels.getTotalObject(i).createTotalCount(str);
         }
         if (!config.label.hideDeltaCount && range.isTimeline) {
-          var str = this.getDelta_(data, i);
+          strD = this.getDelta_(graphData, i);
           if (!config.label.noComma) {
-            str = ChartAPI.Data.addCommas(str);
+            strD = ChartAPI.Data.addCommas(strD);
           }
-          labels.getTotalObject(i).createDeltaCount(str);
+          labels.getTotalObject(i).createDeltaCount(strD);
         }
       }
     }, this));
@@ -424,5 +425,6 @@ ChartAPI.Graph.prototype.generateGraphData = function (data) {
       });
     });
   }
+
   return array;
 };
