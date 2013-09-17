@@ -114,7 +114,7 @@ ChartAPI.Data.parseFloat = function (str) {
 };
 
 ChartAPI.Data.addCommas = function (str) {
-  str = str.toString();
+  str = str.toString ? str.toString() : '';
   while (str != (str = str.replace(/^(-?\d+)(\d{3})/, '$1,$2')));
   return str;
-}
+};
