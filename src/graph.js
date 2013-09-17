@@ -1,6 +1,7 @@
 /**
- * Creates Graph Object
- * If you want to draw graph, fire APPEND_GRAPH event for its container Element like this
+ * ChartAPI.Graph creates Graph Object and encapsulates it, which returns jQuery object to iteract graph object.
+ *
+ * If you want to draw graph, fire APPEND_GRAPH event for its container Element like following
  * $container is the jQuery object to which the graph append
  * $('#graphContainer').trigger('APPEND_TO',[$container])
  * you want to update graph as well, fire UPDATE event like the same manner above.
@@ -157,7 +158,7 @@ ChartAPI.Graph.prototype.getTotalCount_ = function (data, index) {
  * return the delta number and className between last and last second count
  * @param {!object} graph JSON data
  * @param {!number} number of set of Y data
- * @return {y:[number,string],y1:[number,string]}
+ * @return {!number|string}
  */
 ChartAPI.Graph.prototype.getDelta_ = function (data, index) {
   var e, s, delta, key, length = data.length;
@@ -205,8 +206,7 @@ ChartAPI.Graph.getCachedChartColors = function (graphId, colors, type) {
 /**
  * Draw Graph
  * @param {!Array.<object>} graph data
- * @param {=string} graph type (bar|line|area|donut)
- * @return nothing
+ * @param {string=} graph type (bar|line|area|donut)
  */
 ChartAPI.Graph.prototype.draw_ = function (data, range, config) {
   var graphData = this.sliceData(data, range);
@@ -342,8 +342,8 @@ ChartAPI.Graph.prototype.generateLabel = function (template, config, range, grap
 
 /**
  * update Graph
- * @param {=Array.<number>}
- * @param {=string} graph unit type (yearly|quater|monthly|weekly|daily|hourly)
+ * @param {Array.<number>=}
+ * @param {string=} graph unit type (yearly|quater|monthly|weekly|daily|hourly)
  */
 ChartAPI.Graph.prototype.update_ = function (newRange, unit) {
   newRange = newRange || [];
