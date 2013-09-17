@@ -277,14 +277,108 @@ describe('graph', function () {
         $gc.remove();
       });
     });
+  });
 
-    it('with label', function () {
-      var range = ChartAPI.Range.factory();
-      var config = graph.config;
+  describe('draw with label', function () {
+    var today = moment();
+    var data;
+    var $gc, graph, filteredData;
+
+    function init(conf, range) {
+      $gc = new ChartAPI.Graph(_.extend({
+        data: data
+      }, conf), (range || {
+        unit: 'monthly'
+      }));
+      $gc.trigger('GET_OBJECT', function (obj) {
+        graph = obj;
+        graph.graphData[range.unit].done(function (data) {
+          filteredData = data;
+        });
+      });
+      waitsFor(function () {
+        return filteredData;
+      }, 'get graph object', 3000);
+    }
+
+    it('use default', function () {
+      var range, config;
+      range = ChartAPI.Range.factory({
+        unit: 'monthly'
+      });
+
+      data = [];
+      for (i = 0; i < 20; i++) {
+        data.push({
+          x: moment(today).subtract('month', i).format(),
+          y: 20 - i,
+          y1: 40 - (i * 2)
+        });
+      }
+
+      init({
+        yLength: 2
+      }, range);
+      runs(function () {
+        config = graph.config;
+        config.label = {};
+        $gc.appendTo('body');
+        filteredData = graph.generateGraphData(filteredData);
+        graph.draw_(filteredData, range, config);
+
+        var labels = graph.labels;
+        expect(labels.totals).toBeDefined();
+        var y = labels.totals.y;
+        var y1 = labels.totals.y1;
+
+        expect(y).toBeDefined();
+        expect(y1).toBeDefined();
+        expect(y.$totalContainer.length).toBeTruthy();
+        expect(y1.$totalContainer.length).toBeTruthy();
+        expect(y.count).toEqual('210');
+        expect(y.delta).toEqual('1');
+        expect(y1.count).toEqual('420');
+        expect(y1.delta).toEqual('2');
+        $gc.remove();
+      });
+    });
+
+    it('delta is minus', function () {
+      today = moment();
+      data = [];
+      for (i = 0; i < 20; i++) {
+        data.unshift({
+          x: moment(today).subtract('month', i).format(),
+          y: i + 1,
+          y1: (i + 1) * 2
+        });
+      }
+      range = ChartAPI.Range.factory({
+        unit: 'monthly'
+      });
+      init({
+        data: data,
+        yLength: 2
+      }, range);
+      config = graph.config;
       config.label = {};
       $gc.appendTo('body');
       filteredData = graph.generateGraphData(filteredData);
       graph.draw_(filteredData, range, config);
+
+      var labels = graph.labels;
+      expect(labels.totals).toBeDefined();
+      var y = labels.totals.y;
+      var y1 = labels.totals.y1;
+
+      expect(y).toBeDefined();
+      expect(y1).toBeDefined();
+      expect(y.$totalContainer.length).toBeTruthy();
+      expect(y1.$totalContainer.length).toBeTruthy();
+      expect(y.count).toEqual('210');
+      expect(y.delta).toEqual('-1');
+      expect(y1.count).toEqual('420');
+      expect(y1.delta).toEqual('-2');
       $gc.remove();
     });
   });
