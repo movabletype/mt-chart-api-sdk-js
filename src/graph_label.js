@@ -53,6 +53,7 @@ ChartAPI.Graph.Labels.Total = function (container, index) {
  * @param {!number} total count
  */
 ChartAPI.Graph.Labels.Total.prototype.createTotalCount = function (count) {
+  this.count = count;
   jQuery('<span class="graph-total-count graph-total-count-y' + (this.index || '') + '">' + count + '</span>').appendTo(this.$totalContainer);
 };
 
@@ -61,6 +62,7 @@ ChartAPI.Graph.Labels.Total.prototype.createTotalCount = function (count) {
  * @param {!number} delta count
  */
 ChartAPI.Graph.Labels.Total.prototype.createDeltaCount = function (delta) {
+  this.delta = delta;
   var deltaClass = delta ? (delta < 0 ? 'minus ' : 'plus ') : 'zero ';
 
   jQuery('<span class="graph-delta graph-delta-y"' + (this.index || '') + '><span class="' + deltaClass + '">(' + delta + ')</span></span>').appendTo(this.$totalContainer);
