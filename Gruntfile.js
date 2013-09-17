@@ -106,7 +106,6 @@ module.exports = function (grunt) {
         options: {
           hostname: 'localhost',
           port: 9001,
-          keepalive: true,
           middleware: function (connect, options) {
             return [
               function (req, res, next) {
@@ -118,6 +117,12 @@ module.exports = function (grunt) {
               connect.directory(options.base)
             ];
           }
+        }
+      },
+      coverage: {
+        options: {
+          hostname: 'localhost',
+          port: 9002
         }
       }
     },
@@ -134,6 +139,7 @@ module.exports = function (grunt) {
       coverage: {
         src: 'lib/core/mtchart.core.js',
         options: {
+          host: 'http://localhost:9002/',
           template: require('grunt-template-jasmine-istanbul'),
           templateOptions: {
             coverage: 'test/coverage/coverage.json',
@@ -149,5 +155,7 @@ module.exports = function (grunt) {
       }
     }
   });
+  grunt.registerTask('test', ['preprocess', 'connect:jasmine', 'jasmine:test']);
+  grunt.registerTask('coverage', ['preprocess', 'connect:coverage', 'jasmine:coverage']);
   grunt.registerTask('build', ['clean', 'preprocess', 'copy', 'cssmin', 'uglify']);
 };
