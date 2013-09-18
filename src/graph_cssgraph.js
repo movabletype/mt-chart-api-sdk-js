@@ -1,6 +1,10 @@
 ChartAPI.Graph.css = {};
 
-ChartAPI.Graph.css.Base = function (data, config) {
+ChartAPI.Graph.css.Base = function (data, config, range, $container) {
+  this.data = data;
+  this.config = config;
+  this.range = range;
+  this.$container = $container;
   this.len = data.length;
   this.$graphEl = $('<div id="' + config.id + '" class="css-graph">');
 };

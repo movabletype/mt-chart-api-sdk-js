@@ -1,6 +1,10 @@
 ChartAPI.Graph.morris = {};
 
 ChartAPI.Graph.morris.Base = function (data, config, range, $container) {
+  this.data = data;
+  this.config = config;
+  this.range = range;
+  this.$container = $container;
   if (!window.Morris && typeof window.require === 'function') {
     require(['raphael', 'morris'], $.proxy(function () {
       this.build_(Morris, data, config, range, $container);
