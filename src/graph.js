@@ -300,7 +300,7 @@ ChartAPI.Graph.test = {};
 
 ChartAPI.Graph.test.canvas = function () {
   var elem = document.createElement('canvas');
-  return elem.getContext && elem.getContext('2d');
+  return !!(elem.getContext && elem.getContext('2d'));
 };
 
 ChartAPI.Graph.test.svg = function () {
