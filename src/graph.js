@@ -1,14 +1,36 @@
 /**
- * ChartAPI.Graph creates Graph Object and encapsulates it, which returns jQuery object to iteract graph object.
- *
+ * @typedef {Object} graphConfig
+ * @property {string=} type - Graph type. default is morris.bar
+ * @property {string=} staticPath - staticPath is the base path for getting JSON files with ajax
+ * @property {(string|object)=} data - data object to use as graph data. you can use JSON file name for it. ChartAPI gets its file with ajax. When this value is not set, try to fetch 'graph.json' file
+ * @property {number=} yLength - you can set how many y data set use in the graph. default is 1.
+ * @property {boolean=} autoSized - If true, graph will rerender when window resized. default is false.
+ * @property {string=} dataLabel - you can set the desinated data value for data label, which is used with Graph List. default is 'x'
+ * @property {graphConfig=} fallback - When browser does not have capavilities for the graph type, use fallback setting as graphConfig
+ * @property {array=} chartColors - Hex colors list to use in graph bar/line. default is preset colors
+ * @property {object=} label - label settings. If it's not set, graph label is not appeared.
+ */
+
+/**
+ * @typedef {Object} graphRange
+ * @property {(string|number|Date)=} start - start date time. paramater should be parse enabled format with Date
+ * @property {(string|number|Date)=} end - end date time. paramater should be parse enabled format with Date
+ * @property {number=} length - The length of range. default is 10
+ * @property {number=} maxLength - max length of range. default is 90
+ * @property {string=} unit - duration unit for data
+ * @property {string=} dataType - 'timeline' or 'general'. default is timeline.
+ */
+
+/**
+ * ChartAPI.Graph creates Graph Object and encapsulates it, which returns jQuery object to iteract graph object.<br><br>
  * If you want to draw graph, fire APPEND_GRAPH event for its container Element like following
  * $container is the jQuery object to which the graph append
  * $('#graphContainer').trigger('APPEND_TO',[$container])
  * you want to update graph as well, fire UPDATE event like the same manner above.
  *
- * @param {object} graph setings
- * @param {object} object including range settings
- * @return {jQuery} return container jQuery object
+ * @param {graphConfig=} config - graph config
+ * @param {graphRange=} range - graph range
+ * @returns {jQuery} return container element wrapped with jQuery
  * @constructor
  */
 ChartAPI.Graph = function (config, range) {
@@ -65,11 +87,12 @@ ChartAPI.Graph = function (config, range) {
 
   this.setAutoResizeUpdate();
 
+  var isTimeline = this.range.isTimeline;
+
   /**
    * @return {jQuery} return jQuery object for chaining
    * return back the graph data range to callback
    */
-  var isTimeline = this.range.isTimeline;
   $graphContainer.on('GET_DATA_RANGE', $.proxy(function (e, callback) {
     this.getData(function (data) {
       callback(ChartAPI.Range.getDataRange(data, isTimeline));
@@ -128,8 +151,8 @@ ChartAPI.Graph.prototype.getData = function (callback) {
 
 /**
  * return data label array with array indexes
- * @param {!Array.<number>} array of indexes
- * @param {!Array.<object>} graph JSON data
+ * @param {!(Array.<number>)} indexArray - array of indexes
+ * @param {!(Array.<object>)} data - array of graph data
  * @return {Array.<string>}
  */
 ChartAPI.Graph.prototype.getDataLabelByIndex = function (indexArray, data) {
@@ -158,7 +181,7 @@ ChartAPI.Graph.prototype.getTotalCount_ = function (data, index) {
  * return the delta number and className between last and last second count
  * @param {!object} graph JSON data
  * @param {!number} number of set of Y data
- * @return {!number|string}
+ * @return {!(number|string)}
  */
 ChartAPI.Graph.prototype.getDelta_ = function (data, index) {
   var e, s, delta, key, length = data.length;
@@ -180,7 +203,7 @@ ChartAPI.Graph.presetColors = function () {
 
 /**
  * return colors with some manipulations
- * @param  {Array.<string>=} colors
+ * @param  {(Array.<string>)=} colors
  * colors to use, default is ChartAPI.Graph.presetColors colors
  * @param  {string=} type
  * you can use 'reverse' or 'shuffle' manipulation types. default is the straightfoward
@@ -217,7 +240,7 @@ ChartAPI.Graph.getCachedChartColors = function (graphId, colors, type) {
 
 /**
  * Draw Graph
- * @param {!Array.<object>} graph data
+ * @param {!(Array.<object>)} graph data
  * @param {string=} graph type (bar|line|area|donut)
  */
 ChartAPI.Graph.prototype.draw_ = function (data, range, config) {
@@ -345,7 +368,7 @@ ChartAPI.Graph.prototype.generateLabel = function (template, config, range, grap
 
 /**
  * update Graph
- * @param {Array.<number>=}
+ * @param {(Array.<number>)=}
  * @param {string=} graph unit type (yearly|quater|monthly|weekly|daily|hourly)
  */
 ChartAPI.Graph.prototype.update_ = function (newRange, unit) {
