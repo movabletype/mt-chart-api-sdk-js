@@ -45,5 +45,5 @@
     "karma": "~0.10.2",
     "grunt-karma": "~0.6.2"
   },
-  "dependencies": {},
+  "dependencies": {}
 }
