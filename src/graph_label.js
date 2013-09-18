@@ -52,18 +52,18 @@ ChartAPI.Graph.Labels.Total = function (container, index) {
  * create element for displaying total count and append its container
  * @param {!number} total count
  */
-ChartAPI.Graph.Labels.Total.prototype.createTotalCount = function (count) {
-  this.count = count;
-  jQuery('<span class="graph-total-count graph-total-count-y' + (this.index || '') + '">' + count + '</span>').appendTo(this.$totalContainer);
+ChartAPI.Graph.Labels.Total.prototype.createTotalCount = function (count, noComma) {
+  this.count = noComma ? count + '' : ChartAPI.Data.addCommas(count);
+  jQuery('<span class="graph-total-count graph-total-count-y' + (this.index || '') + '">' + this.count + '</span>').appendTo(this.$totalContainer);
 };
 
 /**
  * create element for displaying delta
  * @param {!number} delta count
  */
-ChartAPI.Graph.Labels.Total.prototype.createDeltaCount = function (delta) {
-  this.delta = delta;
-  var deltaClass = delta ? (delta < 0 ? 'minus ' : 'plus ') : 'zero ';
+ChartAPI.Graph.Labels.Total.prototype.createDeltaCount = function (delta, noComma) {
+  this.deltaClass = delta ? (delta < 0 ? 'minus' : 'plus') : 'zero';
+  this.delta = noComma ? delta + '' : ChartAPI.Data.addCommas(delta);
 
-  jQuery('<span class="graph-delta graph-delta-y"' + (this.index || '') + '><span class="' + deltaClass + '">(' + delta + ')</span></span>').appendTo(this.$totalContainer);
+  jQuery('<span class="graph-delta graph-delta-y"' + (this.index || '') + '><span class="' + this.deltaClass + '">(' + this.delta + ')</span></span>').appendTo(this.$totalContainer);
 };

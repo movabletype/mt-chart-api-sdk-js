@@ -318,21 +318,12 @@ ChartAPI.Graph.prototype.generateLabel = function (template, config, range, grap
     labels = this.labels = new ChartAPI.Graph.Labels(this.$graphContainer, yLength, template);
 
     this.getData($.proxy(function (data) {
-      var str, strD;
       for (var i = 0; i < yLength; i++) {
         if (!config.label.hideTotalCount) {
-          str = this.getTotalCount_(data, i);
-          if (!config.label.noComma) {
-            str = ChartAPI.Data.addCommas(str);
-          }
-          labels.getTotalObject(i).createTotalCount(str);
+          labels.getTotalObject(i).createTotalCount(this.getTotalCount_(data, i), config.label.noComma);
         }
         if (!config.label.hideDeltaCount && range.isTimeline) {
-          strD = this.getDelta_(graphData, i);
-          if (!config.label.noComma) {
-            strD = ChartAPI.Data.addCommas(strD);
-          }
-          labels.getTotalObject(i).createDeltaCount(strD);
+          labels.getTotalObject(i).createDeltaCount(this.getDelta_(graphData, i), config.label.noComma);
         }
       }
     }, this));
