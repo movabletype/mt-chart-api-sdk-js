@@ -170,10 +170,22 @@ ChartAPI.Graph.prototype.getDelta_ = function (data, index) {
   return delta === undefined ? '' : delta;
 };
 
+/**
+ * return array of the preset colors
+ * @returns ['#6AAC2B', '#FFBE00', '#CF6DD3', '#8F2CFF', '#2D85FF', '#5584D4', '#5ED2B8', '#9CCF41', '#F87085', '#2C8087', '#8EEC6A', '#FFE700', '#FF5E19', '#FF4040', '#976BD6', '#503D99', '#395595']
+ */
 ChartAPI.Graph.presetColors = function () {
   return ['#6AAC2B', '#FFBE00', '#CF6DD3', '#8F2CFF', '#2D85FF', '#5584D4', '#5ED2B8', '#9CCF41', '#F87085', '#2C8087', '#8EEC6A', '#FFE700', '#FF5E19', '#FF4040', '#976BD6', '#503D99', '#395595'];
 };
 
+/**
+ * return colors with some manipulations
+ * @param  {Array.<string>=} colors
+ * colors to use, default is ChartAPI.Graph.presetColors colors
+ * @param  {string=} type
+ * you can use 'reverse' or 'shuffle' manipulation types. default is the straightfoward
+ * @return {Array.<string>} the array of colors
+ */
 ChartAPI.Graph.getChartColors = function (colors, type) {
   var func = {
     'reverse': function (arr) {
@@ -294,16 +306,16 @@ ChartAPI.Graph.test.vml = function () {
 };
 
 ChartAPI.Graph.prototype.generateLabel = function (template, config, range, graphData) {
-  var data = config.label.data ? config.label.data : {},
+  var labelData = config.label.data ? config.label.data : {},
     yLength = config.label.yLength || config.yLength,
     labels,
     dfd;
 
-  if (data && typeof data === 'string') {
-    dfd = $.getJSON(config.staticPath + data);
+  if (labelData && typeof labelData === 'string') {
+    dfd = $.getJSON(config.staticPath + labelData);
   } else {
     dfd = $.Deferred();
-    dfd.resolve(data);
+    dfd.resolve(labelData);
   }
 
   dfd.done($.proxy(function (data) {
