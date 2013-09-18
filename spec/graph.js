@@ -508,6 +508,11 @@ describe('graph', function () {
         $gc.remove();
       });
     });
+
+    it('getDelta_ returns blank when data has no y data', function () {
+      var delta = ChartAPI.Graph.prototype.getDelta_.call(this, [{}], 0);
+      expect(delta).toEqual('');
+    });
   });
 
   describe('update graph', function () {
@@ -537,7 +542,7 @@ describe('graph', function () {
           type: type,
           data: data,
           label: {}
-        }
+        };
 
         if (type === 'easel.mix') {
           config.mix = [{
@@ -550,7 +555,7 @@ describe('graph', function () {
         }
 
         if (type === 'css.horizontalBar') {
-          config.width = '400px'
+          config.width = '400px';
         }
 
         $gc = new ChartAPI.Graph(config, range);
@@ -578,11 +583,11 @@ describe('graph', function () {
           expect(graphData[9].x).toEqual(end.format('YYYY-MM-DD'));
 
           var y1 = _.find(data, function (d) {
-            return d.x === moment(end).format()
+            return d.x === moment(end).format();
           });
           var y0 = _.find(data, function (d) {
             return d.x === moment(end).subtract('days', 1).format();
-          })
+          });
 
           expectedDeltaY = y1.y - y0.y;
           expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
@@ -610,11 +615,11 @@ describe('graph', function () {
           expect(graphData[19].x).toEqual(newEnd.format('YYYY-MM-DD'));
 
           var y1 = _.find(data, function (d) {
-            return d.x === moment(newEnd).format()
+            return d.x === moment(newEnd).format();
           });
           var y0 = _.find(data, function (d) {
             return d.x === moment(newEnd).subtract('days', 1).format();
-          })
+          });
 
           expectedDeltaY = y1.y - y0.y;
           expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
@@ -626,32 +631,127 @@ describe('graph', function () {
     });
   });
 
-  it('use general data (no timeline)', function () {
+  describe('use general data (no timeline)', function () {
+    _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
+      it(type, function () {
+        var today = moment();
+        var data = [];
+        for (i = 0; i < 30; i++) {
+          data.push({
+            x: moment(today).subtract('days', i * 2).format('YYYY-MM-DD'),
+            y: Math.ceil(Math.random() * 100),
+            y1: Math.ceil(Math.random() * 100)
+          });
+        }
+        var $gc, graph, filteredData;
 
-  });
+        var range = ChartAPI.Range.factory({
+          dataType: 'general'
+        });
 
-  it('only one data (delta returns blank)', function () {
+        var config = {
+          type: type,
+          data: data,
+          label: {}
+        };
 
+        if (type === 'easel.mix') {
+          config.mix = [{
+            type: 'bar',
+            yLength: 1
+          }, {
+            type: 'motionLine',
+            yLength: 1
+          }];
+        }
+
+        if (type === 'css.horizontalBar') {
+          config.width = '400px';
+        }
+
+        $gc = new ChartAPI.Graph(config, range);
+        $gc.trigger('GET_OBJECT', function (obj) {
+          graph = obj;
+          graph.graphData[range.unit].done(function (data) {
+            filteredData = data;
+            $gc.trigger('APPEND_TO', [$('body')]);
+          });
+        });
+        waitsFor(function () {
+          return graph.graphObject;
+        }, 'get graph object', 3000);
+
+        runs(function () {
+          expect($gc.length).toBeTruthy();
+          $gc.remove();
+        });
+      });
+    });
   });
 
   describe('getColors', function () {
     it('reverse', function () {
-
+      var straight = ChartAPI.Graph.getChartColors();
+      var reverse = ChartAPI.Graph.getChartColors(null, 'reverse');
+      _.each(reverse, function (color, i) {
+        expect(color).toEqual(straight[straight.length - i - 1]);
+      });
     });
-    it('shuffle', function () {
 
+    it('shuffle', function () {
+      var straight = ChartAPI.Graph.getChartColors();
+      var shuffle = ChartAPI.Graph.getChartColors(null, 'shuffle');
+      var expected;
+      _.each(shuffle, function (color) {
+        for (var i = 0; i < straight.length; i++) {
+          if (color === straight[i]) {
+            expected = straight.splice(i, 1)[0];
+          }
+        }
+        expect(color).toEqual(expected);
+      });
     });
 
     it('use own chartColor without default Chart Color', function () {
-
-    })
+      var colors = ['#ffffff', '#000000'];
+      var expected = ChartAPI.Graph.getChartColors(colors);
+      _.each(colors, function (color, i) {
+        expect(color).toEqual(expected[i]);
+      });
+    });
   });
 
   describe('Feature detection (test)', function () {
     it('vml', function () {
-
+      spyOn(ChartAPI.Graph.test, 'svg').andReturn(false);
+      var ret = ChartAPI.Graph.test.vml();
+      var ua = navigator.userAgent;
+      if (/Trident/.test(ua)) {
+        expect(ret).toBe(true);
+      } else {
+        expect(ret).toBe(false);
+      }
     });
 
+    it('svg', function () {
+      var ret = ChartAPI.Graph.test.svg();
+      var ua = navigator.userAgent;
+      if (/Trident/.test(ua)) {
+        expect(ret).toBe(false);
+      } else {
+        expect(ret).toBe(true);
+      }
+    });
+
+    it('canvas', function () {
+      var ret = ChartAPI.Graph.test.canvas();
+      var ua = navigator.userAgent;
+      if (/Trident\/[45]/.test(ua)) {
+        expect(ret).toBe(false);
+      } else {
+        expect(ret).toBe(true);
+      }
+    });
   });
 
   it('customize label template', function () {
@@ -664,6 +764,6 @@ describe('graph', function () {
 
   it('use template function in graph label', function () {
 
-  })
+  });
 
 });
