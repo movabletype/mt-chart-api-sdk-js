@@ -53,6 +53,7 @@ describe('graph', function () {
         return graph;
       }, 'get graph object', 3000);
     });
+
     it('UPDATE', function () {
       var newRange;
       runs(function () {
@@ -107,8 +108,27 @@ describe('graph', function () {
     });
 
     it('REMOVE', function () {
+      var $gc, graph;
       runs(function () {
-        spyOn(graph, 'remove_');
+        $gc = new ChartAPI.Graph({
+          data: data,
+          label: {},
+          autoResize: true
+        });
+        $gc.trigger('APPEND_TO', [$('body')]);
+
+        $gc.trigger('GET_OBJECT', function (obj) {
+          graph = obj;
+          spyOn(graph.graphObject, 'remove');
+          spyOn(graph.labels, 'remove');
+          spyOn($gc, 'remove');
+        });
+        waitsFor(function () {
+          return graph;
+        }, 'get graph object', 3000);
+      });
+      runs(function () {
+        spyOn(graph, 'remove_').andCallThrough();
         var ret = $gc.trigger('REMOVE');
       });
       waitsFor(function () {
@@ -116,6 +136,9 @@ describe('graph', function () {
       });
       runs(function () {
         expect(graph.remove_).toHaveBeenCalled();
+        expect(graph.graphObject.remove).toHaveBeenCalled();
+        expect(graph.labels.remove).toHaveBeenCalled();
+        expect($gc.remove).toHaveBeenCalled();
       });
     });
 
@@ -311,8 +334,8 @@ describe('graph', function () {
       for (i = 0; i < 20; i++) {
         data.push({
           x: moment(today).subtract('month', i).format(),
-          y: 20 - i,
-          y1: 40 - (i * 2)
+          y: 20000 - i * 1000,
+          y1: 40000 - (i * 2000)
         });
       }
 
@@ -335,10 +358,12 @@ describe('graph', function () {
         expect(y1).toBeDefined();
         expect(y.$totalContainer.length).toBeTruthy();
         expect(y1.$totalContainer.length).toBeTruthy();
-        expect(y.count).toEqual('210');
-        expect(y.delta).toEqual('1');
-        expect(y1.count).toEqual('420');
-        expect(y1.delta).toEqual('2');
+        expect(y.count).toEqual('210,000');
+        expect(y.delta).toEqual('1,000');
+        expect(y.deltaClass).toEqual('plus');
+        expect(y1.count).toEqual('420,000');
+        expect(y1.delta).toEqual('2,000');
+        expect(y1.deltaClass).toEqual('plus');
         $gc.remove();
       });
     });
@@ -349,8 +374,8 @@ describe('graph', function () {
       for (i = 0; i < 20; i++) {
         data.unshift({
           x: moment(today).subtract('month', i).format(),
-          y: i + 1,
-          y1: (i + 1) * 2
+          y: (i + 1) * 1000,
+          y1: (i + 1) * 2000
         });
       }
       range = ChartAPI.Range.factory({
@@ -375,11 +400,270 @@ describe('graph', function () {
       expect(y1).toBeDefined();
       expect(y.$totalContainer.length).toBeTruthy();
       expect(y1.$totalContainer.length).toBeTruthy();
-      expect(y.count).toEqual('210');
-      expect(y.delta).toEqual('-1');
-      expect(y1.count).toEqual('420');
-      expect(y1.delta).toEqual('-2');
+      expect(y.count).toEqual('210,000');
+      expect(y.delta).toEqual('-1,000');
+      expect(y.deltaClass).toEqual('minus');
+      expect(y1.count).toEqual('420,000');
+      expect(y1.delta).toEqual('-2,000');
+      expect(y1.deltaClass).toEqual('minus');
       $gc.remove();
     });
+
+    it('delta is zero (and without comma)', function () {
+      today = moment();
+      data = [];
+      for (i = 0; i < 20; i++) {
+        data.unshift({
+          x: moment(today).subtract('month', i).format(),
+          y: 1000,
+          y1: 2000
+        });
+      }
+      range = ChartAPI.Range.factory({
+        unit: 'monthly'
+      });
+      init({
+        data: data,
+        yLength: 2
+      }, range);
+      config = graph.config;
+      config.label = {
+        noComma: true
+      };
+
+      $gc.appendTo('body');
+      filteredData = graph.generateGraphData(filteredData);
+      graph.draw_(filteredData, range, config);
+
+      var labels = graph.labels;
+      expect(labels.totals).toBeDefined();
+      var y = labels.totals.y;
+      var y1 = labels.totals.y1;
+
+      expect(y).toBeDefined();
+      expect(y1).toBeDefined();
+      expect(y.$totalContainer.length).toBeTruthy();
+      expect(y1.$totalContainer.length).toBeTruthy();
+      expect(y.count).toEqual('20000');
+      expect(y.delta).toEqual('0');
+      expect(y.deltaClass).toEqual('zero');
+      expect(y1.count).toEqual('40000');
+      expect(y1.delta).toEqual('0');
+      expect(y1.deltaClass).toEqual('zero');
+      $gc.remove();
+    });
+
+    it('delta count should be calculated from the in-use graph data', function () {
+      var range, config;
+      data = [];
+      for (var i = 0; i < 20; i++) {
+        data.push({
+          x: moment(today).subtract('month', i).format(),
+          y: Math.floor(Math.random() * 999),
+          y1: Math.floor(Math.random() * 999)
+        });
+      }
+
+      range = ChartAPI.Range.factory({
+        end: moment(today).subtract('month', 9),
+        unit: 'monthly'
+      });
+
+      init({
+        yLength: 2
+      }, range);
+
+      runs(function () {
+        config = graph.config;
+        config.label = {};
+        $gc.appendTo('body');
+        filteredData = graph.generateGraphData(filteredData);
+        graph.draw_(filteredData, range, config);
+
+        var labels = graph.labels;
+        expect(labels.totals).toBeDefined();
+        var y = labels.totals.y;
+        var y1 = labels.totals.y1;
+
+        var expectedTotalY = 0;
+        var expectedTotalY1 = 0;
+        for (var i = 0; i < 20; i++) {
+          expectedTotalY += data[i].y;
+          expectedTotalY1 += data[i].y1;
+        }
+        expectedTotalY = ChartAPI.Data.addCommas(expectedTotalY);
+        expectedTotalY1 = ChartAPI.Data.addCommas(expectedTotalY1);
+
+        var expectedDeltaY = (data[9].y - data[10].y).toString();
+        var expectedDeltaY1 = (data[9].y1 - data[10].y1).toString();
+
+        expect(y).toBeDefined();
+        expect(y1).toBeDefined();
+        expect(y.$totalContainer.length).toBeTruthy();
+        expect(y1.$totalContainer.length).toBeTruthy();
+        expect(y.count).toEqual(expectedTotalY);
+        expect(y1.count).toEqual(expectedTotalY1);
+        expect(y.delta).toEqual(expectedDeltaY);
+        expect(y1.delta).toEqual(expectedDeltaY1);
+        $gc.remove();
+      });
+    });
   });
+
+  describe('update graph', function () {
+    _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
+      it('update range', function () {
+        var today = moment();
+        var data = [];
+        for (i = 0; i < 180; i++) {
+          data.push({
+            x: moment(today).subtract('days', i).format(),
+            y: Math.ceil(Math.random() * 100),
+            y1: Math.ceil(Math.random() * 100)
+          });
+        }
+        var $gc, graph, filteredData;
+
+        var start = moment(today).subtract('days', 29);
+        var end = moment(today).subtract('days', 20);
+
+        var range = ChartAPI.Range.factory({
+          unit: 'daily',
+          start: start.format(),
+          end: end.format()
+        });
+
+        var config = {
+          type: type,
+          data: data,
+          label: {}
+        }
+
+        if (type === 'easel.mix') {
+          config.mix = [{
+            type: 'bar',
+            yLength: 1
+          }, {
+            type: 'motionLine',
+            yLength: 1
+          }];
+        }
+
+        if (type === 'css.horizontalBar') {
+          config.width = '400px'
+        }
+
+        $gc = new ChartAPI.Graph(config, range);
+        $gc.trigger('GET_OBJECT', function (obj) {
+          graph = obj;
+          graph.graphData[range.unit].done(function (data) {
+            filteredData = data;
+            $gc.trigger('APPEND_TO', [$('body')]);
+          });
+        });
+        waitsFor(function () {
+          return graph.graphObject;
+        }, 'get graph object', 3000);
+
+        var newStart, newEnd, gObj1, gLabels1;
+        runs(function () {
+          gObj1 = graph.graphObject;
+          gLabels1 = graph.labels;
+
+          spyOn(gObj1, 'remove').andCallThrough();
+          spyOn(gLabels1, 'remove').andCallThrough();
+
+          var graphData = gObj1.data;
+          expect(graphData[0].x).toEqual(start.format('YYYY-MM-DD'));
+          expect(graphData[9].x).toEqual(end.format('YYYY-MM-DD'));
+
+          var y1 = _.find(data, function (d) {
+            return d.x === moment(end).format()
+          });
+          var y0 = _.find(data, function (d) {
+            return d.x === moment(end).subtract('days', 1).format();
+          })
+
+          expectedDeltaY = y1.y - y0.y;
+          expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
+          expect(graph.labels.totals.y.delta).toEqual(expectedDeltaY);
+
+          spyOn(graph, 'draw_').andCallThrough();
+          newStart = moment(today).subtract('days', 49);
+          newEnd = moment(today).subtract('days', 30);
+          graph.update_([newStart.format(), newEnd.format()]);
+        });
+
+        waitsFor(function () {
+          return graph.draw_.callCount;
+        });
+
+        runs(function () {
+          expect(gObj1.remove).toHaveBeenCalled();
+          expect(gLabels1.remove).toHaveBeenCalled();
+
+          var gObj2 = graph.graphObject;
+          var graphData = gObj2.data;
+          expect(gObj2.$graphEl.length).toBeTruthy();
+          expect(graphData.length).toEqual(20);
+          expect(graphData[0].x).toEqual(newStart.format('YYYY-MM-DD'));
+          expect(graphData[19].x).toEqual(newEnd.format('YYYY-MM-DD'));
+
+          var y1 = _.find(data, function (d) {
+            return d.x === moment(newEnd).format()
+          });
+          var y0 = _.find(data, function (d) {
+            return d.x === moment(newEnd).subtract('days', 1).format();
+          })
+
+          expectedDeltaY = y1.y - y0.y;
+          expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
+          expect(graph.labels.totals.y.delta).toEqual(expectedDeltaY);
+
+          $gc.remove();
+        });
+      });
+    });
+  });
+
+  it('use general data (no timeline)', function () {
+
+  });
+
+  it('only one data (delta returns blank)', function () {
+
+  });
+
+  describe('getColors', function () {
+    it('reverse', function () {
+
+    });
+    it('shuffle', function () {
+
+    });
+
+    it('use own chartColor without default Chart Color', function () {
+
+    })
+  });
+
+  describe('Feature detection (test)', function () {
+    it('vml', function () {
+
+    });
+
+  });
+
+  it('customize label template', function () {
+
+  });
+
+  it('get template JSON data', function () {
+
+  });
+
+  it('use template function in graph label', function () {
+
+  })
+
 });
