@@ -193,6 +193,7 @@ describe('graph', function () {
       runs(function () {
         expect(graph.draw_).toHaveBeenCalled();
         expect($container.find($gc)).toBeTruthy();
+        $gc.remove();
       });
     });
   });
@@ -266,7 +267,7 @@ describe('graph', function () {
     };
 
     function init(conf, range) {
-      for (i = 0; i < 180; i++) {
+      for (i = 0; i < 5; i++) {
         data.push({
           x: today.subtract(unitMap[range.unit], 1).format(),
           y: Math.ceil(Math.random() * 100),
@@ -295,6 +296,12 @@ describe('graph', function () {
         var conf = {
           type: type
         };
+        if (/easel/.test(type)) {
+          conf.fallback = {
+            test: 'canvas',
+            type: 'morris.bar'
+          }
+        }
         if (type === 'easel.mix') {
           conf.mix = [{
             type: 'bar',
@@ -322,6 +329,35 @@ describe('graph', function () {
         $gc.remove();
       });
     });
+
+    it('fallback test', function () {
+      spyOn(ChartAPI.Graph.test, 'canvas').andReturn(false);
+      var range = ChartAPI.Range.factory();
+      var conf = {
+        type: 'easel.bar',
+        fallback: {
+          test: 'canvas',
+          type: 'morris.bar'
+        }
+      }
+      init(conf, range);
+      expect(graph.graphObject.$graphEl).toBeDefined();
+      expect(graph.graphObject.$graphEl.length).toBeTruthy();
+      expect(graph.graphObject.config.type).toEqual('morris.bar');
+      $gc.remove();
+    });
+
+    it('split chartColors', function () {
+      var range = ChartAPI.Range.factory();
+      var conf = {
+        chartColors: '#ffffff,#000000'
+      }
+      init(conf, range);
+      expect(graph.graphObject.$graphEl).toBeDefined();
+      expect(graph.graphObject.$graphEl.length).toBeTruthy();
+      expect(graph.graphObject.chartColors).toEqual(['#ffffff', '#000000']);
+      $gc.remove();
+    })
   });
 
   describe('draw with label', function () {

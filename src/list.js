@@ -10,7 +10,7 @@
  */
 ChartAPI.List = function (config, range) {
   this.id = 'list-' + (new Date()).valueOf() + Math.floor(Math.random() * 100);
-  this.config = config;
+  this.config = config || {};
 
   this.config.staticPath = this.config.staticPath || '';
 
