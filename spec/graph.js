@@ -254,37 +254,49 @@ describe('graph', function () {
   describe('draw', function () {
     var today = moment();
     var data = [];
-    for (i = 0; i < 180; i++) {
-      data.push({
-        x: today.subtract('days', 1).format(),
-        y: Math.ceil(Math.random() * 100),
-        y1: Math.ceil(Math.random() * 100)
-      });
-    }
     var $gc, graph, filteredData;
 
-    beforeEach(function () {
-      $gc = new ChartAPI.Graph({
-        data: data
-      });
+    var unitMap = {
+      'monthly': 'month',
+      'weekly': 'week',
+      'daily': 'days',
+      'hourly': 'hour',
+      'yearly': 'year',
+      'quarter': 'month'
+    };
+
+    function init(conf, range) {
+      for (i = 0; i < 180; i++) {
+        data.push({
+          x: today.subtract(unitMap[range.unit], 1).format(),
+          y: Math.ceil(Math.random() * 100),
+          y1: Math.ceil(Math.random() * 100)
+        });
+      }
+      conf = conf || {};
+      conf.data = data;
+
+      $gc = new ChartAPI.Graph(conf, range);
       $gc.trigger('GET_OBJECT', function (obj) {
         graph = obj;
-        graph.graphData.monthly.done(function (data) {
+        graph.graphData[range.unit].done(function (data) {
           filteredData = data;
+          $gc.trigger('APPEND_TO', [$('body')]);
         });
       });
       waitsFor(function () {
-        return filteredData;
+        return $gc.length;
       }, 'get graph object', 3000);
-    });
+    }
 
     _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
       it(type, function () {
         var range = ChartAPI.Range.factory();
-        var config = graph.config;
-        config.type = type;
+        var conf = {
+          type: type
+        };
         if (type === 'easel.mix') {
-          config.mix = [{
+          conf.mix = [{
             type: 'bar',
             yLength: 1
           }, {
@@ -292,9 +304,19 @@ describe('graph', function () {
             yLength: 1
           }];
         }
-        $gc.appendTo('body');
-        filteredData = graph.generateGraphData(filteredData);
-        graph.draw_(filteredData, range, config);
+        init(conf, range);
+        expect(graph.graphObject.$graphEl).toBeDefined();
+        expect(graph.graphObject.$graphEl.length).toBeTruthy();
+        $gc.remove();
+      });
+    });
+
+    _.each(['monthly', 'weekly', 'daily', 'hourly', 'yearly', 'quarter'], function (unit) {
+      it(unit, function () {
+        var range = ChartAPI.Range.factory({
+          unit: unit
+        });
+        init({}, range)
         expect(graph.graphObject.$graphEl).toBeDefined();
         expect(graph.graphObject.$graphEl.length).toBeTruthy();
         $gc.remove();
