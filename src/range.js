@@ -32,6 +32,7 @@ ChartAPI.Range.isTimeline = function (dataType) {
  * @param {=string} unit type (yearly|quarter|monthly|weekly|daily|hourly)
  * @param {boolean} when true, auto caliculate length of data according to window width
  * @return {{start: Date, end: Date, length: number, maxLength: number, unit: string, dataType: string, max: Date|number, min: Date|number, isTimeline: boolean}}
+ * When unit is monthly, quarterly, or yearly, adjust date not to carry over to next month. for example, new Date(2013,1,30) (which returns 2 Mar) ajusts new Date(2013,1,28)
  */
 ChartAPI.Range.calcDate = function (s, e, length, maxLength, unit, dataType, autoSized) {
   unit = unit || 'monthly';

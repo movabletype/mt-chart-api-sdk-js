@@ -104,6 +104,19 @@ ChartAPI.Date.parse = function (d) {
 };
 
 /**
+ * @param  {Date|String} date Date class to get end date of month
+ * @return {Date}      last date of month
+ */
+ChartAPI.Date.getEndOfMonth = function (date) {
+  date = date instanceof Date ? date : (ChartAPI.Date.parse(date) || date);
+  if (date instanceof Date) {
+    var month = date.getMonth();
+    var date = new Date((new Date(date.getFullYear(), month + 1, 1, 0, 0, 0)) - 1);
+  }
+  return date;
+}
+
+/**
  * @param {!Date}
  * @param {!number} number of data
  * @param {!string} unit type (yearly|quarter|monthly|weekly|daily|hourly)
@@ -118,15 +131,29 @@ ChartAPI.Date.calcDate = function (date, l, u, sym) {
   h = 0;
   l = l - 1;
   sym = sym ? -1 : 1;
+
+  var adjustEndDate = function () {
+    if (d > 27) {
+      var endOfMonth = ChartAPI.Date.getEndOfMonth((new Date(y, m, 27, h)));
+      if (endOfMonth.getDate) {
+        endOfMonth = endOfMonth.getDate();
+        d = d > endOfMonth ? endOfMonth : d;
+      }
+    }
+  };
+
   ({
     'yearly': function () {
       y = y + (sym * l);
+      adjustEndDate();
     },
     'monthly': function () {
       m = m + (sym * l);
+      adjustEndDate();
     },
     'quarter': function () {
       m = m + (sym * l * 4);
+      adjustEndDate();
     },
     'weekly': function () {
       d = d + (sym * l * 7) - date.getDay();
