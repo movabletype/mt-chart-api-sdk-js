@@ -111,10 +111,10 @@ ChartAPI.Date.getEndOfMonth = function (date) {
   date = date instanceof Date ? date : (ChartAPI.Date.parse(date) || date);
   if (date instanceof Date) {
     var month = date.getMonth();
-    var date = new Date((new Date(date.getFullYear(), month + 1, 1, 0, 0, 0)) - 1);
+    date = new Date((new Date(date.getFullYear(), month + 1, 1, 0, 0, 0)) - 1);
   }
   return date;
-}
+};
 
 /**
  * @param {!Date}
