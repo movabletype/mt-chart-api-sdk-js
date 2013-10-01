@@ -113,7 +113,7 @@ ChartAPI.Slider = function (config, range, $dataRangeTarget, updateTarget, amoun
   });
 
   this.$sliderContainer.on('UPDATE', function (e, values) {
-    that.$slider("values", values);
+    that.$slider.slider("values", values);
     that.updateSliderAmount(values);
     return $(this);
   });
@@ -154,7 +154,7 @@ ChartAPI.Slider.prototype.buildSlider = function (sliderMin, sliderMax, values) 
   values = values || [this.range.min, this.range.max];
 
   if (this.$slider) {
-    this.$slider.destroy();
+    this.$slider.slider('destroy');
     this.$slider.remove();
   }
   this.$slider = $('<div class="slider"></div>').slider({
@@ -197,7 +197,7 @@ ChartAPI.Slider.prototype.draw_ = function ($container) {
  * if you want to redraw Slider, trigger 'REDRAW' for the slider container.
  */
 ChartAPI.Slider.prototype.erase_ = function () {
-  var ret = this.$slider && this.$slider.destroy ? this.$slider.destroy() : this.$slider.slider('destroy');
+  this.$slider.slider('destroy');
   this.$sliderContainer.html('');
 };
 
@@ -235,7 +235,7 @@ ChartAPI.Slider.prototype.updateSliderAmount = function (values, ui) {
     e = values[1];
     if ((e - s) > maxLength) {
       if (ui.value === ui.values[0]) {
-        e = maxLength - s;
+        e = s + maxLength;
         this.$slider.slider('values', 1, e);
       } else {
         s = e - maxLength;
@@ -263,13 +263,4 @@ ChartAPI.Slider.prototype.updateGraphAndList = function (values, newUnit) {
   $.each(this.eventTargetList.update.get(), function (i, $target) {
     $target.trigger('UPDATE', [values, newUnit]);
   });
-};
-
-/**
- * update slider handlers position
- * @param {number} index of slider handler (left is 0, right is 1)
- * @param {number} value of slider handler position
- */
-ChartAPI.Slider.prototype.update_ = function (index, value) {
-  this.$slider.slider('values', index, value);
 };
