@@ -35,7 +35,7 @@ ChartAPI.Graph.morris.Base.prototype.build_ = function (Morris, data, config, ra
   }).prependTo($container);
 
   config = $.extend({}, config, {
-    element: config.id,
+    element: this.$graphEl,
     data: data,
     xkey: 'x',
     labels: this.getYLabels_(yLength, config.labels),
@@ -133,7 +133,8 @@ ChartAPI.Graph.morris.Base.prototype.build_ = function (Morris, data, config, ra
     var totalCount = this.getTotalCount_(data, 0);
 
     graphConfig.formatter = function (y) {
-      var str = y = (y + '').replace(/,/g, '');
+      y = (y + '').replace(/,/g, '');
+      var str = y;
       if (!config.noCommaOnYLabel) {
         str = ChartAPI.Data.addCommas(str);
       }
