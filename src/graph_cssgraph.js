@@ -98,6 +98,7 @@ ChartAPI.Graph.css.Base.prototype.horizontalBar = function (data, config, range,
 };
 
 ChartAPI.Graph.css.Base.prototype.ratioHorizontalBar = function (data, config, range, $container) {
+  /*jshint maxcomplexity: 25*/
   var yLength = config.yLength,
     barWidth = parseInt(config.barWidth, 10) || 30,
     barMarginLeft = parseInt(config.barMarginLeft, 10) || 30,

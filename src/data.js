@@ -83,12 +83,12 @@ ChartAPI.Data.filterData = function (data, max, min, u, yLength, noConcat) {
     var td, key;
     td = ChartAPI.Date.parse(v.x);
     if (td && td >= min && td <= max) {
-      key = noConcat ? ChartAPI.Date.createId(td, 'daily') : function () {
+      key = noConcat ? ChartAPI.Date.createId(td, 'daily') : (function () {
         if (u === 'weekly') {
           td = ChartAPI.Date.getWeekStartday(td);
         }
         return ChartAPI.Date.createId(td, u);
-      }();
+      }());
 
       if (noConcat) {
         hash[key] = v;
@@ -119,6 +119,6 @@ ChartAPI.Data.parseFloat = function (str) {
 
 ChartAPI.Data.addCommas = function (str) {
   str = str.toString ? str.toString() : '';
-  while (str != (str = str.replace(/^(-?\d+)(\d{3})/, '$1,$2')));
+  while (str !== (str = str.replace(/^(-?\d+)(\d{3})/, '$1,$2'))) {}
   return str;
 };

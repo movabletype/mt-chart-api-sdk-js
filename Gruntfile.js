@@ -1,3 +1,4 @@
+/*global module:false*/
 module.exports = function (grunt) {
   'use strict';
 
@@ -11,6 +12,24 @@ module.exports = function (grunt) {
 
   // Project configuration.
   grunt.initConfig({
+    jshint: {
+      options: grunt.file.readJSON('.jshintrc'),
+      gruntfile: {
+        options: {
+          es5: true,
+          unused: false,
+          evil: true
+        },
+        files: {
+          src: ['Gruntfile.js']
+        }
+      },
+      scripts: {
+        files: {
+          src: ['src/*.js']
+        }
+      }
+    },
     watch: {
       preprocess: {
         files: ['src/**.js'],
@@ -131,7 +150,7 @@ module.exports = function (grunt) {
           template: require('grunt-template-jasmine-istanbul'),
           templateOptions: {
             coverage: 'test/coverage/coverage.json',
-            report: 'test/coverage',
+            report: 'test/coverage'
           }
         }
       }
@@ -146,7 +165,7 @@ module.exports = function (grunt) {
       test_graph: {
         template: 'spec/graph_data.hbs',
         templateData: {
-          days: function () {
+          days: (function () {
             var array = [];
             var today = moment();
             for (var i = 0; i < 10; i++) {
@@ -161,15 +180,15 @@ module.exports = function (grunt) {
               });
             }
             array[array.length - 1].last = true;
-            return array
-          }()
+            return array;
+          }())
         },
         output: 'spec/graph_data.json'
       },
       test_list: {
         template: 'spec/list_data.hbs',
         templateData: {
-          days: function () {
+          days: (function () {
             var array = [];
             var today = moment();
             for (var i = 0; i < 10; i++) {
@@ -182,8 +201,8 @@ module.exports = function (grunt) {
               });
             }
             array[array.length - 1].last = true;
-            return array
-          }()
+            return array;
+          }())
         },
         output: 'spec/list_data.json'
       }
