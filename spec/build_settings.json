@@ -1,0 +1,26 @@
+{
+  "graph": {
+    "type": "morris.line",
+    "label": {
+      "template": "/spec/graph_label.template"
+    },
+    "data": "/spec/graph_data.json",
+    "yLength": 2,
+    "lineWidth": 6,
+    "pointSize": 6,
+    "autoResize": true
+  },
+  "slider": {
+    "appendSliderAmountBottom": false,
+    "hideSliderAmount": false
+  },
+  "list": {
+    "data": "/spec/list_data.json",
+    "template": "/spec/list_data.template",
+    "dataLabel": "title"
+  },
+  "range": {
+    "dataType": "timeline",
+    "unit": "daily"
+  }
+}
