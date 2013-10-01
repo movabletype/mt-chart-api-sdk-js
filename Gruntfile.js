@@ -36,18 +36,6 @@ module.exports = function (grunt) {
         files: {
           'lib/mtchart.js': 'src/build/mtchart.js'
         }
-      },
-      jasmine: {
-        options: {
-          inline: true,
-          context: {
-            today: moment().format('YYYY-MM-DD'),
-            todayISO: moment().toISOString()
-          }
-        },
-        files: {
-          'spec/graph_data.json': 'spec/graph_data.preprocess'
-        }
       }
     },
     clean: {
@@ -153,9 +141,56 @@ module.exports = function (grunt) {
         browsers: grunt.option('browser') ? [grunt.option('browser')] : ['Chrome'],
         configFile: 'karma.conf.js'
       }
+    },
+    'compile-handlebars': {
+      test_graph: {
+        template: 'spec/graph_data.hbs',
+        templateData: {
+          days: function () {
+            var array = [];
+            var today = moment();
+            for (var i = 0; i < 10; i++) {
+              var d = moment(today).subtract('day', i);
+              array.push({
+                x: d.format('YYYY-MM-DD'),
+                iso: d.format(),
+                y: Math.ceil(Math.random() * 100),
+                y1: Math.ceil(Math.random() * 100),
+                y2: Math.ceil(Math.random() * 100),
+                y3: Math.ceil(Math.random() * 100)
+              });
+            }
+            array[array.length - 1].last = true;
+            return array
+          }()
+        },
+        output: 'spec/graph_data.json'
+      },
+      test_list: {
+        template: 'spec/list_data.hbs',
+        templateData: {
+          days: function () {
+            var array = [];
+            var today = moment();
+            for (var i = 0; i < 10; i++) {
+              var d = moment(today).subtract('day', i);
+              array.push({
+                x: d.format('YYYY-MM-DD'),
+                date: d.lang('ja').format('LL'),
+                title: 'Entry' + i,
+                href: 'http://memolog.org/post/' + i
+              });
+            }
+            array[array.length - 1].last = true;
+            return array
+          }()
+        },
+        output: 'spec/list_data.json'
+      }
     }
   });
-  grunt.registerTask('test', ['preprocess', 'connect:jasmine', 'jasmine:test']);
-  grunt.registerTask('coverage', ['preprocess', 'connect:coverage', 'jasmine:coverage']);
+  grunt.registerTask('test', ['preprocess', 'compile-handlebars:test_graph', 'compile-handlebars:test_list', 'connect:jasmine', 'jasmine:test']);
+  grunt.registerTask('coverage', ['preprocess', 'compile-handlebars:test_graph', 'compile-handlebars:test_list', 'connect:coverage', 'jasmine:coverage']);
+  grunt.registerTask('dev', ['clean', 'preprocess', 'cssmin']);
   grunt.registerTask('build', ['clean', 'preprocess', 'copy', 'cssmin', 'uglify']);
 };

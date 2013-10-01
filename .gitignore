@@ -5,3 +5,4 @@ _SpecRunner.html
 .grunt
 test/
 spec/graph_data.json
+spec/list_data.json

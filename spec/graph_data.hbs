@@ -1,0 +1,8 @@
+[{{#each days}}{
+  "xLabel": "{{this.x}}",
+  "x": "{{this.iso}}",
+  "y": {{this.y}},
+  "y1": {{this.y1}},
+  "y2": {{this.y2}},
+  "y3": {{this.y3}}
+}{{#unless this.last}},{{/unless}}{{/each}}]
