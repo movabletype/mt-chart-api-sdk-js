@@ -3,6 +3,6 @@ dist/
 .DS_Store
 _SpecRunner.html
 .grunt
-test/
+test/coverage
 spec/graph_data.json
 spec/list_data.json
