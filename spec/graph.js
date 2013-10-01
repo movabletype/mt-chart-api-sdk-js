@@ -119,12 +119,12 @@ describe('graph', function () {
 
         $gc.trigger('GET_OBJECT', function (obj) {
           graph = obj;
-          spyOn(graph.graphObject, 'remove');
-          spyOn(graph.labels, 'remove');
-          spyOn($gc, 'remove');
+          spyOn(graph.graphObject, 'remove').andCallThrough();
+          spyOn(graph.labels, 'remove').andCallThrough();
+          spyOn($gc, 'remove').andCallThrough();
         });
         waitsFor(function () {
-          return graph;
+          return graph && !! $gc.html();
         }, 'get graph object', 3000);
       });
       runs(function () {
@@ -132,12 +132,13 @@ describe('graph', function () {
         var ret = $gc.trigger('REMOVE');
       });
       waitsFor(function () {
-        return graph.remove_.callCount;
+        return graph.remove_.callCount && !$gc.html();
       });
       runs(function () {
         expect(graph.remove_).toHaveBeenCalled();
         expect(graph.graphObject.remove).toHaveBeenCalled();
         expect(graph.labels.remove).toHaveBeenCalled();
+        expect(graph.$graphContainer.html()).toBeFalsy();
         expect($gc.remove).toHaveBeenCalled();
       });
     });
@@ -193,7 +194,7 @@ describe('graph', function () {
       runs(function () {
         expect(graph.draw_).toHaveBeenCalled();
         expect($container.find($gc)).toBeTruthy();
-        $gc.remove();
+        $gc.trigger('REMOVE');
       });
     });
   });
@@ -220,7 +221,7 @@ describe('graph', function () {
         expect(data[0]).toBeDefined();
         expect(data[0].x).toBeTruthy();
         expect(moment(data[0].x).format('YYYYMMDD')).toEqual(moment().format('YYYYMMDD'));
-        expect(data[0].y).toEqual(1);
+        $gc.trigger('REMOVE')
       });
     });
 
@@ -248,6 +249,7 @@ describe('graph', function () {
         expect(data[0].x).toBeTruthy();
         expect(moment(data[0].x).format('YYYYMMDD')).toEqual(moment().format('YYYYMMDD'));
         expect(data[0].y).toEqual(1);
+        $gc.trigger('REMOVE')
       });
     });
   });
@@ -286,7 +288,7 @@ describe('graph', function () {
         });
       });
       waitsFor(function () {
-        return $gc.length;
+        return !!$gc.length && !! $gc.html();
       }, 'get graph object', 3000);
     }
 
@@ -312,9 +314,11 @@ describe('graph', function () {
           }];
         }
         init(conf, range);
-        expect(graph.graphObject.$graphEl).toBeDefined();
-        expect(graph.graphObject.$graphEl.length).toBeTruthy();
-        $gc.remove();
+        runs(function () {
+          expect(graph.graphObject.$graphEl).toBeDefined();
+          expect(graph.graphObject.$graphEl.length).toBeTruthy();
+          $gc.trigger('REMOVE');
+        });
       });
     });
 
@@ -323,10 +327,12 @@ describe('graph', function () {
         var range = ChartAPI.Range.factory({
           unit: unit
         });
-        init({}, range)
-        expect(graph.graphObject.$graphEl).toBeDefined();
-        expect(graph.graphObject.$graphEl.length).toBeTruthy();
-        $gc.remove();
+        init({}, range);
+        runs(function () {
+          expect(graph.graphObject.$graphEl).toBeDefined();
+          expect(graph.graphObject.$graphEl.length).toBeTruthy();
+          $gc.trigger('REMOVE');
+        })
       });
     });
 
@@ -341,10 +347,12 @@ describe('graph', function () {
         }
       }
       init(conf, range);
-      expect(graph.graphObject.$graphEl).toBeDefined();
-      expect(graph.graphObject.$graphEl.length).toBeTruthy();
-      expect(graph.graphObject.config.type).toEqual('morris.bar');
-      $gc.remove();
+      runs(function () {
+        expect(graph.graphObject.$graphEl).toBeDefined();
+        expect(graph.graphObject.$graphEl.length).toBeTruthy();
+        expect(graph.graphObject.config.type).toEqual('morris.bar');
+        $gc.trigger('REMOVE');
+      })
     });
 
     it('split chartColors', function () {
@@ -353,10 +361,12 @@ describe('graph', function () {
         chartColors: '#ffffff,#000000'
       }
       init(conf, range);
-      expect(graph.graphObject.$graphEl).toBeDefined();
-      expect(graph.graphObject.$graphEl.length).toBeTruthy();
-      expect(graph.graphObject.chartColors).toEqual(['#ffffff', '#000000']);
-      $gc.remove();
+      runs(function () {
+        expect(graph.graphObject.$graphEl).toBeDefined();
+        expect(graph.graphObject.$graphEl.length).toBeTruthy();
+        expect(graph.graphObject.chartColors).toEqual(['#ffffff', '#000000']);
+        $gc.trigger('REMOVE');
+      })
     })
   });
 
@@ -422,7 +432,7 @@ describe('graph', function () {
         expect(y1.count).toEqual('420,000');
         expect(y1.delta).toEqual('2,000');
         expect(y1.deltaClass).toEqual('plus');
-        $gc.remove();
+        $gc.trigger('REMOVE');
       });
     });
 
@@ -464,7 +474,7 @@ describe('graph', function () {
       expect(y1.count).toEqual('420,000');
       expect(y1.delta).toEqual('-2,000');
       expect(y1.deltaClass).toEqual('minus');
-      $gc.remove();
+      $gc.trigger('REMOVE');
     });
 
     it('delta is zero (and without comma)', function () {
@@ -508,7 +518,7 @@ describe('graph', function () {
       expect(y1.count).toEqual('40000');
       expect(y1.delta).toEqual('0');
       expect(y1.deltaClass).toEqual('zero');
-      $gc.remove();
+      $gc.trigger('REMOVE');
     });
 
     it('delta count should be calculated from the in-use graph data', function () {
@@ -563,7 +573,7 @@ describe('graph', function () {
         expect(y1.count).toEqual(expectedTotalY1);
         expect(y.delta).toEqual(expectedDeltaY);
         expect(y1.delta).toEqual(expectedDeltaY1);
-        $gc.remove();
+        $gc.trigger('REMOVE');
       });
     });
 
@@ -683,7 +693,7 @@ describe('graph', function () {
           expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
           expect(graph.labels.totals.y.delta).toEqual(expectedDeltaY);
 
-          $gc.remove();
+          $gc.trigger('REMOVE');
         });
       });
     });
@@ -741,7 +751,7 @@ describe('graph', function () {
 
         runs(function () {
           expect($gc.length).toBeTruthy();
-          $gc.remove();
+          $gc.trigger('REMOVE');
         });
       });
     });

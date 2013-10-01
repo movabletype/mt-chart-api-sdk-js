@@ -28,10 +28,10 @@ describe('List', function () {
         return list;
       }, 'get List object', 3000);
       runs(function () {
-        console.log(list.range)
         expect(list.id).toMatch(/list-[0-9]+/);
         expect(list.config.staticPath).toEqual(config.staticPath);
         expect(list.$listContainer.attr('id')).toEqual(list.id + '-container');
+        $lc.remove();
       });
     });
   });
