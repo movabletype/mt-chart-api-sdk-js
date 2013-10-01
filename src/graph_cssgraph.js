@@ -43,7 +43,7 @@ ChartAPI.Graph.css.Base.prototype.horizontalBar = function (data, config, range,
       return {
         value: parseInt(d.x.substr(d.x.lastIndexOf('-') + 1), 10).toString(),
         weekday: ChartAPI.Date.parse(d.x) ? ChartAPI.Date.parse(d.x).getDay() : null
-      }
+      };
     }),
     maxY = Math.max.apply(null, dataY) || 1,
     yLabel = config.yLabel || dataY,
@@ -72,7 +72,7 @@ ChartAPI.Graph.css.Base.prototype.horizontalBar = function (data, config, range,
       } else if (label[i].weekday === 0) {
         $date.addClass('sunday').css({
           'color': dateColorSunday
-        })
+        });
       }
 
       $el.find('.css-graph-bar-container').css({
