@@ -90,12 +90,16 @@ ChartAPI.Data.filterData = function (data, max, min, u, yLength, noConcat) {
         return ChartAPI.Date.createId(td, u);
       }();
 
-      hash[key] = hash[key] && !noConcat ? hash[key] : {
-        x: v.x
-      };
-      for (i = 0; i < yLength; i++) {
-        str = i ? 'y' + i : 'y';
-        hash[key][str] = (hash[key][str] || 0) + ChartAPI.Data.parseFloat(v[str], 10);
+      if (noConcat) {
+        hash[key] = v;
+      } else {
+        hash[key] = hash[key] || {
+          x: v.x
+        };
+        for (i = 0; i < yLength; i++) {
+          str = i ? 'y' + i : 'y';
+          hash[key][str] = (hash[key][str] || 0) + ChartAPI.Data.parseFloat(v[str], 10);
+        }
       }
     }
   });
