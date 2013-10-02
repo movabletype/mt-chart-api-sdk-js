@@ -28,6 +28,16 @@
     "module":false,
     "ChartAPI":false,
     "createjs":false,
-    "Morris":false
+    "Morris":false,
+    "describe":false,
+    "it":false,
+    "beforeEach":false,
+    "afterEach":false,
+    "waitsFor":false,
+    "runs":false,
+    "expect":false,
+    "moment":false,
+    "spyOn":false,
+    "jasmine":false
   }
 }
