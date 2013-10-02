@@ -10,6 +10,7 @@ describe('graph', function () {
   ChartAPI.Graph = $.extend(ChartAPI.Graph, orig);
   ChartAPI.Graph.prototype = orig.prototype;
 
+  var graph;
   describe('initialize', function () {
     it('default settings', function () {
       var $gc = new ChartAPI.Graph();
@@ -34,7 +35,7 @@ describe('graph', function () {
   describe('events', function () {
     var today = moment();
     var data = [];
-    for (i = 0; i < 180; i++) {
+    for (var i = 0; i < 180; i++) {
       data.push({
         x: today.subtract('days', 1).format(),
         xLabel: today.format('YYYY-MM-DD'),
@@ -129,7 +130,7 @@ describe('graph', function () {
       });
       runs(function () {
         spyOn(graph, 'remove_').andCallThrough();
-        var ret = $gc.trigger('REMOVE');
+        $gc.trigger('REMOVE');
       });
       waitsFor(function () {
         return graph.remove_.callCount && !$gc.html();
@@ -206,7 +207,7 @@ describe('graph', function () {
         staticPath: staticPath,
         data: 'graph_data.json'
       });
-      var flag, data, graphData;
+      var flag, data;
       $gc.trigger('GET_OBJECT', function (obj) {
         graph = obj;
         graph.origData_.always(function (resp) {
@@ -221,7 +222,7 @@ describe('graph', function () {
         expect(data[0]).toBeDefined();
         expect(data[0].x).toBeTruthy();
         expect(moment(data[0].x).format('YYYYMMDD')).toEqual(moment().format('YYYYMMDD'));
-        $gc.trigger('REMOVE')
+        $gc.trigger('REMOVE');
       });
     });
 
@@ -249,7 +250,7 @@ describe('graph', function () {
         expect(data[0].x).toBeTruthy();
         expect(moment(data[0].x).format('YYYYMMDD')).toEqual(moment().format('YYYYMMDD'));
         expect(data[0].y).toEqual(1);
-        $gc.trigger('REMOVE')
+        $gc.trigger('REMOVE');
       });
     });
   });
@@ -269,7 +270,7 @@ describe('graph', function () {
     };
 
     function init(conf, range) {
-      for (i = 0; i < 5; i++) {
+      for (var i = 0; i < 5; i++) {
         data.push({
           x: today.subtract(unitMap[range.unit], 1).format(),
           y: Math.ceil(Math.random() * 100),
@@ -302,7 +303,7 @@ describe('graph', function () {
           conf.fallback = {
             test: 'canvas',
             type: 'morris.bar'
-          }
+          };
         }
         if (type === 'easel.mix') {
           conf.mix = [{
@@ -332,7 +333,7 @@ describe('graph', function () {
           expect(graph.graphObject.$graphEl).toBeDefined();
           expect(graph.graphObject.$graphEl.length).toBeTruthy();
           $gc.trigger('REMOVE');
-        })
+        });
       });
     });
 
@@ -345,29 +346,29 @@ describe('graph', function () {
           test: 'canvas',
           type: 'morris.bar'
         }
-      }
+      };
       init(conf, range);
       runs(function () {
         expect(graph.graphObject.$graphEl).toBeDefined();
         expect(graph.graphObject.$graphEl.length).toBeTruthy();
         expect(graph.graphObject.config.type).toEqual('morris.bar');
         $gc.trigger('REMOVE');
-      })
+      });
     });
 
     it('split chartColors', function () {
       var range = ChartAPI.Range.factory();
       var conf = {
         chartColors: '#ffffff,#000000'
-      }
+      };
       init(conf, range);
       runs(function () {
         expect(graph.graphObject.$graphEl).toBeDefined();
         expect(graph.graphObject.$graphEl.length).toBeTruthy();
         expect(graph.graphObject.chartColors).toEqual(['#ffffff', '#000000']);
         $gc.trigger('REMOVE');
-      })
-    })
+      });
+    });
   });
 
   describe('draw with label', function () {
@@ -399,7 +400,7 @@ describe('graph', function () {
       });
 
       data = [];
-      for (i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
         data.push({
           x: moment(today).subtract('month', i).format(),
           y: 20000 - i * 1000,
@@ -439,21 +440,21 @@ describe('graph', function () {
     it('delta is minus', function () {
       today = moment();
       data = [];
-      for (i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
         data.unshift({
           x: moment(today).subtract('month', i).format(),
           y: (i + 1) * 1000,
           y1: (i + 1) * 2000
         });
       }
-      range = ChartAPI.Range.factory({
+      var range = ChartAPI.Range.factory({
         unit: 'monthly'
       });
       init({
         data: data,
         yLength: 2
       }, range);
-      config = graph.config;
+      var config = graph.config;
       config.label = {};
       $gc.appendTo('body');
       filteredData = graph.generateGraphData(filteredData);
@@ -480,21 +481,21 @@ describe('graph', function () {
     it('delta is zero (and without comma)', function () {
       today = moment();
       data = [];
-      for (i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
         data.unshift({
           x: moment(today).subtract('month', i).format(),
           y: 1000,
           y1: 2000
         });
       }
-      range = ChartAPI.Range.factory({
+      var range = ChartAPI.Range.factory({
         unit: 'monthly'
       });
       init({
         data: data,
         yLength: 2
       }, range);
-      config = graph.config;
+      var config = graph.config;
       config.label = {
         noComma: true
       };
@@ -588,7 +589,7 @@ describe('graph', function () {
       it('update range', function () {
         var today = moment();
         var data = [];
-        for (i = 0; i < 180; i++) {
+        for (var i = 0; i < 180; i++) {
           data.push({
             x: moment(today).subtract('days', i).format(),
             y: Math.ceil(Math.random() * 100),
@@ -657,7 +658,7 @@ describe('graph', function () {
             return d.x === moment(end).subtract('days', 1).format();
           });
 
-          expectedDeltaY = y1.y - y0.y;
+          var expectedDeltaY = y1.y - y0.y;
           expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
           expect(graph.labels.totals.y.delta).toEqual(expectedDeltaY);
 
@@ -689,7 +690,7 @@ describe('graph', function () {
             return d.x === moment(newEnd).subtract('days', 1).format();
           });
 
-          expectedDeltaY = y1.y - y0.y;
+          var expectedDeltaY = y1.y - y0.y;
           expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
           expect(graph.labels.totals.y.delta).toEqual(expectedDeltaY);
 
@@ -704,7 +705,7 @@ describe('graph', function () {
       it(type, function () {
         var today = moment();
         var data = [];
-        for (i = 0; i < 30; i++) {
+        for (var i = 0; i < 30; i++) {
           data.push({
             x: moment(today).subtract('days', i * 2).format('YYYY-MM-DD'),
             y: Math.ceil(Math.random() * 100),
@@ -821,6 +822,476 @@ describe('graph', function () {
       }
     });
   });
+
+  describe('Morris', function () {
+    var today = moment();
+    var data = [];
+    for (var i = 0; i < 30; i++) {
+      data.push({
+        x: moment(today).subtract('days', i).format('YYYY-MM-DD'),
+        y: Math.ceil(Math.random() * 100),
+        y1: Math.ceil(Math.random() * 100)
+      });
+    }
+    var $gc, filteredData;
+
+    it('use requirejs', function () {
+      var $requirejs, $config;
+
+      $('script[src$="morris.min.js"]').remove();
+      $('script[src$="raphael-min.js"]').remove();
+      delete window.Morris;
+      delete window.Raphael;
+
+      expect(window.Morris).toBeUndefined();
+
+      $requirejs = $('<script src="/test/other_libs/require.js"></script>').appendTo($('head'));
+      waitsFor(function () {
+        return !!window.requirejs;
+      });
+      runs(function () {
+        $config = $("<script>requirejs.config({baseUrl: '.',paths: { text: 'test/other_libs/text',raphael:'deps/raphael-min',morris:'deps/morris.min' }})</script>").appendTo($('head'));
+      });
+
+      var graph;
+      runs(function () {
+        var config = {
+          type: 'morris.line',
+          data: data,
+          pointStrokeColors: '#ccc,#f00'
+        };
+
+        var range = {
+          unit: 'daily'
+        };
+
+        $gc = new ChartAPI.Graph(config, range);
+        $gc.trigger('GET_OBJECT', function (obj) {
+          graph = obj;
+          graph.graphData[range.unit].done(function (data) {
+            filteredData = data;
+            $gc.trigger('APPEND_TO', [$('body')]);
+          });
+        });
+      });
+
+      waitsFor(function () {
+        return graph.graphObject && $gc.html();
+      }, 'get graph object', 3000);
+
+      runs(function () {
+        expect(window.Raphael).toBeDefined();
+        expect(window.Morris).toBeDefined();
+        expect($gc.find('.graph-element').html()).toBeTruthy();
+        $gc.trigger('REMOVE');
+      });
+
+      runs(function () {
+        $requirejs.remove();
+        $config.remove();
+        $('script[src$="text.js"]').remove();
+        delete window.require;
+        delete window.define;
+        delete window.requirejs;
+      });
+    });
+
+    it('when use VML (only IE8 lower), set smooth option on', function () {
+      var $gc, graph;
+      var config = {
+        type: 'morris.line',
+        data: data,
+        smooth: false
+      };
+
+      var range = {
+        unit: 'daily'
+      };
+
+      spyOn(ChartAPI.Graph.test, 'svg').andReturn(false);
+      spyOn(ChartAPI.Graph.test, 'vml').andReturn(true);
+
+      var graphConfig;
+      spyOn(window.Morris, 'Line').andCallFake(function (c) {
+        graphConfig = c;
+      });
+      $gc = new ChartAPI.Graph(config, range);
+
+      $gc.trigger('GET_OBJECT', function (obj) {
+        graph = obj;
+        $gc.trigger('APPEND_TO', [$('body')]);
+      });
+
+      waitsFor(function () {
+        return graph.graphObject && $gc.html();
+      }, 'get graph object', 3000);
+
+      runs(function () {
+        expect(window.Morris.Line).toHaveBeenCalled();
+        expect(ChartAPI.Graph.test.svg).toHaveBeenCalled();
+        expect(graphConfig.smooth).toBe(true);
+      });
+    });
+
+    it('customize donuts formatter', function () {
+      var data = [{
+        x: moment().format('YYYY-MM-DD'),
+        y: '100,000'
+      }];
+
+      var $gc, graph;
+      var config = {
+        type: 'morris.donut',
+        data: data,
+        donutsFormatter: jasmine.createSpy('donutsFormatter')
+      };
+
+      var range = {
+        length: 1
+      };
+
+      $gc = new ChartAPI.Graph(config, range);
+
+      $gc.trigger('GET_OBJECT', function (obj) {
+        graph = obj;
+        $gc.trigger('APPEND_TO', [$('body')]);
+      });
+
+      waitsFor(function () {
+        return graph.graphObject && $gc.html();
+      }, 'get graph object', 3000);
+
+      runs(function () {
+        expect(config.donutsFormatter).toHaveBeenCalled();
+        var args = config.donutsFormatter.mostRecentCall.args;
+        expect(args[0]).toEqual('100,000');
+        expect(args[1]).toEqual('100%');
+        expect(args[2]).toEqual(100000);
+        $gc.trigger('REMOVE');
+      });
+    });
+
+    it('small ymax Numlines', function () {
+      var data = [{
+        x: moment().format('YYYY-MM-DD'),
+        y: 7
+      }, {
+        x: moment().subtract('day', 1).format('YYYY-MM-DD'),
+        y: 3
+      }];
+
+      var $gc, graph;
+      var config = {
+        type: 'morris.bar',
+        data: data
+      };
+
+      var range = {
+        unit: 'daily'
+      };
+
+      var graphConfig;
+      spyOn(window.Morris, 'Bar').andCallFake(function (c) {
+        graphConfig = c;
+      });
+      $gc = new ChartAPI.Graph(config, range);
+
+      $gc.trigger('GET_OBJECT', function (obj) {
+        graph = obj;
+        $gc.trigger('APPEND_TO', [$('body')]);
+      });
+
+      waitsFor(function () {
+        return graph.graphObject && $gc.html();
+      }, 'get graph object', 3000);
+
+      runs(function () {
+        expect(graphConfig.numLines).toEqual(5);
+      });
+    });
+
+    it('getTotalCount_', function () {
+      var $gc, graph;
+      var config = {
+        type: 'morris.donut',
+        data: data
+      };
+
+      var range = {
+        unit: 'daily'
+      };
+
+      $gc = new ChartAPI.Graph(config, range);
+
+      $gc.trigger('GET_OBJECT', function (obj) {
+        graph = obj;
+        $gc.trigger('APPEND_TO', [$('body')]);
+      });
+
+      waitsFor(function () {
+        return graph && $gc.html();
+      });
+
+      runs(function () {
+        var tortalCount = graph.graphObject.getTotalCount_([{
+          y: '100,000'
+        }, {
+          y: '10.5'
+        }], 0);
+        expect(tortalCount).toEqual(100010.5);
+        $gc.trigger('REMOVE');
+      });
+    });
+
+    it('graph element removed when userAgent has no Morris capavilities', function () {
+      var $gc, graph;
+      var config = {
+        type: 'morris.line',
+        data: data
+      };
+
+      spyOn(ChartAPI.Graph.test, 'svg').andReturn(false);
+      spyOn(ChartAPI.Graph.test, 'vml').andReturn(false);
+      spyOn(ChartAPI.Graph.morris, 'line').andCallThrough();
+
+      $gc = new ChartAPI.Graph(config);
+
+      $gc.trigger('GET_OBJECT', function (obj) {
+        graph = obj;
+        spyOn(graph, 'remove_').andCallThrough();
+        $gc.trigger('APPEND_TO', [$('body')]);
+      });
+
+      waitsFor(function () {
+        return graph && ChartAPI.Graph.morris.line.callCount;
+      }, 'get graph object', 3000);
+
+      runs(function () {
+        expect(graph.remove_).toHaveBeenCalled();
+      });
+    });
+  });
+
+  if (!/MSIE 8\.0/.test(navigator.userAgent)) {
+    describe('Easel', function () {
+      var today = moment();
+      var data = [];
+      for (var i = 0; i < 30; i++) {
+        data.push({
+          x: moment(today).subtract('days', i).format('YYYY-MM-DD'),
+          y: Math.ceil(Math.random() * 100),
+          y1: Math.ceil(Math.random() * 100)
+        });
+      }
+      var $gc, filteredData;
+
+      it('use requirejs', function () {
+        var $requirejs, $config;
+
+        $('script[src$="easeljs-0.6.1.min.js"]').remove();
+        delete window.createjs;
+
+        $requirejs = $('<script src="/test/other_libs/require.js"></script>').appendTo($('head'));
+
+        waitsFor(function () {
+          return !!window.requirejs;
+        });
+
+        runs(function () {
+          $config = $("<script>requirejs.config({baseUrl: '.',paths: { text: 'test/other_libs/text', 'easeljs':'deps/easeljs-0.6.1.min' },shim:{'easeljs':{'exports': 'createjs'}}})</script>").appendTo($('head'));
+        });
+
+        var graph;
+        runs(function () {
+          var config = {
+            type: 'easel.bar',
+            data: data
+          };
+
+          var range = {
+            unit: 'daily'
+          };
+
+          $gc = new ChartAPI.Graph(config, range);
+          $gc.trigger('GET_OBJECT', function (obj) {
+            graph = obj;
+            graph.graphData[range.unit].done(function (data) {
+              filteredData = data;
+              $gc.trigger('APPEND_TO', [$('body')]);
+            });
+          });
+        });
+
+        waitsFor(function () {
+          return graph.graphObject && $gc.html();
+        }, 'get graph object', 3000);
+
+        runs(function () {
+          expect(window.createjs).toBeDefined();
+          expect($gc.find('.graph-canvas').length).toBeTruthy();
+          $gc.trigger('REMOVE');
+        });
+
+        runs(function () {
+          $requirejs.remove();
+          $config.remove();
+          $('script[src$="text.js"]').remove();
+          delete window.require;
+          delete window.define;
+          delete window.requirejs;
+          $('<script src="deps/easeljs-0.6.1.min.js"></script>').appendTo($('head'));
+        });
+      });
+
+      it('wait a while when container width couldn\'t get immediately', function () {
+        var graph;
+        var config = {
+          type: 'easel.motionLine',
+          data: data,
+          drawPointer: false
+        };
+
+        var range = {
+          unit: 'daily',
+        };
+
+        $gc = new ChartAPI.Graph(config, range);
+
+        var width = null;
+        var realWidth = 350;
+        spyOn($gc, 'width').andCallFake(function () {
+          if (!width) {
+            setTimeout(function () {
+              width = realWidth;
+            }, 50);
+          }
+          return width
+        });
+        $gc.width(350);
+
+        $gc.trigger('GET_OBJECT', function (obj) {
+          graph = obj;
+          $gc.trigger('APPEND_TO', [$('body')]);
+        });
+
+        waitsFor(function () {
+          return graph.graphObject && $gc.html();
+        }, 'get graph object', 3000);
+
+        runs(function () {
+          expect(graph.graphObject.width).toEqual(realWidth);
+          $gc.trigger('REMOVE');
+        });
+      });
+
+      it('motionLine ticks 30 times', function () {
+        var graph;
+        var config = {
+          type: 'easel.motionLine',
+          data: data,
+          drawPointer: true
+        };
+
+        var range = {
+          unit: 'daily',
+          length: 11
+        };
+
+        spyOn(createjs.Ticker, 'removeEventListener').andCallThrough();
+
+        $gc = new ChartAPI.Graph(config, range);
+        $gc.trigger('GET_OBJECT', function (obj) {
+          graph = obj;
+          graph.graphData[range.unit].done(function (data) {
+            filteredData = data;
+            $gc.trigger('APPEND_TO', [$('body')]);
+          });
+        });
+
+        waitsFor(function () {
+          return graph.graphObject && $gc.html();
+        }, 'get graph object', 3000);
+
+        var flag;
+        runs(function () {
+          setTimeout(function () {
+            flag = true;
+          }, 1000)
+        });
+
+        waitsFor(function () {
+          return flag;
+        });
+
+        runs(function () {
+          expect(createjs.Ticker.removeEventListener).toHaveBeenCalled();
+          var args = createjs.Ticker.removeEventListener.mostRecentCall.args;
+          expect(args[0]).toEqual('tick');
+          expect(args[1]).toEqual(graph.graphObject.tick);
+          $gc.trigger('REMOVE');
+        });
+      });
+
+      it('convertColor', function () {
+        var graph;
+        var config = {
+          type: 'easel.bar',
+          data: data
+        };
+
+        var range = {
+          unit: 'daily',
+        };
+
+        $gc = new ChartAPI.Graph(config, range);
+
+        $gc.trigger('GET_OBJECT', function (obj) {
+          graph = obj;
+          $gc.trigger('APPEND_TO', [$('body')]);
+        });
+
+        waitsFor(function () {
+          return graph.graphObject && $gc.html();
+        }, 'get graph object', 3000);
+
+        runs(function () {
+          var easel = graph.graphObject;
+          expect(easel.convertColor('rgb(1,2,3)')).toEqual('rgb(1,2,3)');
+          expect(easel.convertColor('rgba(1,2,3,0.1)')).toEqual('rgba(1,2,3,0.1)');
+          expect(easel.convertColor('#990033')).toEqual('rgb(153,0,51)');
+          expect(easel.convertColor('#330044', 0.2)).toEqual('rgba(51,0,68,0.2)');
+          $gc.trigger('REMOVE');
+        });
+      });
+
+      it('graph element removed when userAgent has no easeljs capavilities', function () {
+        var $gc, graph;
+        var config = {
+          type: 'easel.bar',
+          data: data
+        };
+
+        spyOn(ChartAPI.Graph.test, 'canvas').andReturn(false);
+        spyOn(ChartAPI.Graph.easel, 'bar').andCallThrough();
+
+        $gc = new ChartAPI.Graph(config);
+
+        $gc.trigger('GET_OBJECT', function (obj) {
+          graph = obj;
+          spyOn(graph, 'remove_').andCallThrough();
+          $gc.trigger('APPEND_TO', [$('body')]);
+        });
+
+        waitsFor(function () {
+          return graph && ChartAPI.Graph.easel.bar.callCount;
+        }, 'get graph object', 3000);
+
+        runs(function () {
+          expect(graph.remove_).toHaveBeenCalled();
+        });
+      });
+    });
+  }
 
   it('customize label template', function () {
 

@@ -240,6 +240,9 @@ describe('List', function () {
         expect($container).toEqual($lc);
       });
     });
+    afterEach(function () {
+      $lc.remove();
+    });
   });
 
   it('when config.data is null/undefined, getData only just calls callback', function () {
@@ -273,9 +276,5 @@ describe('List', function () {
       expect(spy).toHaveBeenCalled();
       expect(ChartAPI.Data.getData).not.toHaveBeenCalled();
     });
-  });
-
-  afterEach(function () {
-    $lc.remove();
   });
 });
