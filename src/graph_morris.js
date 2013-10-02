@@ -124,7 +124,7 @@ ChartAPI.Graph.morris.Base.prototype.build_ = function (Morris, data, config, ra
   });
 
   // IE8(VML) occured error setting smooth false
-  if (!ChartAPI.Graph.test.svg) {
+  if (!ChartAPI.Graph.test.svg()) {
     graphConfig.smooth = true;
   }
 
@@ -133,12 +133,12 @@ ChartAPI.Graph.morris.Base.prototype.build_ = function (Morris, data, config, ra
     var totalCount = this.getTotalCount_(data, 0);
 
     graphConfig.formatter = function (y) {
-      y = (y + '').replace(/,/g, '');
-      var str = y;
+      var str = (y + '').replace(/,/g, '');
+      var percent = Math.ceil((str / totalCount * 10000)) / 100;
+
       if (!config.noCommaOnYLabel) {
         str = ChartAPI.Data.addCommas(str);
       }
-      var percent = Math.ceil((y / totalCount * 10000)) / 100;
 
       var ret;
       if (config.donutsFormatter && typeof config.donutsFormatter === 'function') {
@@ -242,14 +242,16 @@ ChartAPI.Graph.morris.Base.prototype.getYLabels_ = function (yLength, yLabel) {
  */
 ChartAPI.Graph.morris.Base.prototype.getNumLines_ = function (maxY, height) {
   var numlines;
+  height = height || 56;
+
   if (maxY >= 18) {
     numlines = 9;
   } else if (maxY === 2) {
     numlines = 3;
   } else {
-    numlines = (maxY / 2) + 1;
-
+    numlines = Math.floor((maxY / 2)) + 1;
   }
+
   numlines = Math.min((numlines || 1), Math.floor(height / 56));
 
   return numlines;
