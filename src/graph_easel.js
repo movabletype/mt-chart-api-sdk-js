@@ -37,6 +37,9 @@ ChartAPI.Graph.easel.Base.prototype.buildCanvas = function (createjs) {
 };
 
 ChartAPI.Graph.easel.Base.prototype.remove = function () {
+  if (this.tick) {
+    createjs.Ticker.removeEventListener('tick', this.tick);
+  }
   this.$canvas.remove();
 };
 
@@ -160,7 +163,7 @@ ChartAPI.Graph.easel.Base.prototype.motionLine = function (data, config) {
 
   var stage = this.stage;
 
-  var tick = function (e) {
+  var tick = this.tick = function (e) {
     // if we are on the last frame of animation then remove the tick listener:
     count = count - 1;
     if (count === 0) {
@@ -190,22 +193,11 @@ ChartAPI.Graph.easel.Base.prototype.motionLine = function (data, config) {
 
 ChartAPI.Graph.easel.Base.prototype.convertColor = function (str, alpha) {
   if (str.indexOf('#') !== -1) {
-    var r = parseInt(str.substr(1, 2), 16),
-      g = parseInt(str.substr(3, 2), 16),
-      b = parseInt(str.substr(5, 2), 16);
-
-    if (alpha) {
-      str = 'rgba(' + [r, g, b, alpha].join(',') + ')';
-    } else {
-      str = 'rgb(' + [r, g, b].join(',') + ')';
-    }
+    str = str.replace('#', '0x');
+    str = createjs.Graphics.getRGB(str, alpha);
   } else if (str.indexOf('rgb') !== -1) {
-    // wrap rgb/rgba string
-    if (str.split(',').length < 4) {
-      str = 'rgb(' + str + ')';
-    } else {
-      str = 'rgba(' + str + ')';
-    }
+    str = str.replace(/^rgba?\(/, '').replace(/\)$/, '');
+    str = createjs.Graphics.getRGB.apply(null, str.split(/,/))
   }
   return str;
 };
