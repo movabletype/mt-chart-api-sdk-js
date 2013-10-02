@@ -141,6 +141,9 @@ module.exports = function (grunt) {
         helpers: grunt.file.expand('sample/js/*.js').concat(grunt.file.expand('deps/*.js')).concat(grunt.file.expand('test/spec_helpers/*.js'))
       },
       test: {
+        options: {
+          specs: grunt.option('target') ? 'spec/' + grunt.option('target') + '.js' : 'spec/**/*.js'
+        },
         src: 'lib/core/mtchart.core.js'
       },
       coverage: {
