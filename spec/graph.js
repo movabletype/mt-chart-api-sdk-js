@@ -538,7 +538,7 @@ describe('graph', function () {
       }
 
       range = ChartAPI.Range.factory({
-        end: moment(today).subtract('month', 9),
+        end: moment(today).subtract('month', 9).format(),
         unit: 'monthly'
       });
 
