@@ -6,3 +6,4 @@ _SpecRunner.html
 test/coverage
 spec/graph_data.json
 spec/list_data.json
+spec/build_settings.json
