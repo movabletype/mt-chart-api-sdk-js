@@ -1,5 +1,7 @@
 describe('graph', function () {
   var basePath = !! window.__karma__ ? '/base' : '';
+  var ua = navigator.userAgent;
+  var isIE8 = /MSIE 8/.test(ua);
 
   var orig = ChartAPI.Graph;
   ChartAPI.Graph = function (config, range) {
@@ -297,33 +299,35 @@ describe('graph', function () {
     }
 
     _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
-      it(type, function () {
-        var range = ChartAPI.Range.factory();
-        var conf = {
-          type: type
-        };
-        if (/easel/.test(type)) {
-          conf.fallback = {
-            test: 'canvas',
-            type: 'morris.bar'
+      if (/easel/.test(type) && !isIE8) {
+        it(type, function () {
+          var range = ChartAPI.Range.factory();
+          var conf = {
+            type: type
           };
-        }
-        if (type === 'easel.mix') {
-          conf.mix = [{
-            type: 'bar',
-            yLength: 1
-          }, {
-            type: 'motionLine',
-            yLength: 1
-          }];
-        }
-        init(conf, range);
-        runs(function () {
-          expect(graph.graphObject.$graphEl).toBeDefined();
-          expect(graph.graphObject.$graphEl.length).toBeTruthy();
-          $gc.trigger('REMOVE');
+          if (/easel/.test(type)) {
+            conf.fallback = {
+              test: 'canvas',
+              type: 'morris.bar'
+            };
+          }
+          if (type === 'easel.mix') {
+            conf.mix = [{
+              type: 'bar',
+              yLength: 1
+            }, {
+              type: 'motionLine',
+              yLength: 1
+            }];
+          }
+          init(conf, range);
+          runs(function () {
+            expect(graph.graphObject.$graphEl).toBeDefined();
+            expect(graph.graphObject.$graphEl.length).toBeTruthy();
+            $gc.trigger('REMOVE');
+          });
         });
-      });
+      }
     });
 
     _.each(['monthly', 'weekly', 'daily', 'hourly', 'yearly', 'quarter'], function (unit) {
@@ -590,177 +594,181 @@ describe('graph', function () {
 
   describe('update graph', function () {
     _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
-      it('update range', function () {
-        var today = moment();
-        var data = [];
-        for (var i = 0; i < 180; i++) {
-          data.push({
-            x: moment(today).subtract('days', i).format(),
-            y: Math.ceil(Math.random() * 100),
-            y1: Math.ceil(Math.random() * 100)
+      if (/easel/.test(type) && !isIE8) {
+        it('update range', function () {
+          var today = moment();
+          var data = [];
+          for (var i = 0; i < 180; i++) {
+            data.push({
+              x: moment(today).subtract('days', i).format(),
+              y: Math.ceil(Math.random() * 100),
+              y1: Math.ceil(Math.random() * 100)
+            });
+          }
+          var $gc, graph, filteredData;
+
+          var start = moment(today).subtract('days', 29);
+          var end = moment(today).subtract('days', 20);
+
+          var range = ChartAPI.Range.factory({
+            unit: 'daily',
+            start: start.format(),
+            end: end.format()
           });
-        }
-        var $gc, graph, filteredData;
 
-        var start = moment(today).subtract('days', 29);
-        var end = moment(today).subtract('days', 20);
+          var config = {
+            type: type,
+            data: data,
+            staticPath: basePath,
+            label: {}
+          };
 
-        var range = ChartAPI.Range.factory({
-          unit: 'daily',
-          start: start.format(),
-          end: end.format()
+          if (type === 'easel.mix') {
+            config.mix = [{
+              type: 'bar',
+              yLength: 1
+            }, {
+              type: 'motionLine',
+              yLength: 1
+            }];
+          }
+
+          if (type === 'css.horizontalBar') {
+            config.width = '400px';
+          }
+
+          $gc = new ChartAPI.Graph(config, range);
+          $gc.trigger('GET_OBJECT', function (obj) {
+            graph = obj;
+            graph.graphData[range.unit].done(function (data) {
+              filteredData = data;
+              $gc.trigger('APPEND_TO', [$('body')]);
+            });
+          });
+          waitsFor(function () {
+            return graph.graphObject;
+          }, 'get graph object', 3000);
+
+          var newStart, newEnd, gObj1, gLabels1;
+          runs(function () {
+            gObj1 = graph.graphObject;
+            gLabels1 = graph.labels;
+
+            spyOn(gObj1, 'remove').andCallThrough();
+            spyOn(gLabels1, 'remove').andCallThrough();
+
+            var graphData = gObj1.data;
+            expect(graphData[0].x).toEqual(start.format('YYYY-MM-DD'));
+            expect(graphData[9].x).toEqual(end.format('YYYY-MM-DD'));
+
+            var y1 = _.find(data, function (d) {
+              return d.x === moment(end).format();
+            });
+            var y0 = _.find(data, function (d) {
+              return d.x === moment(end).subtract('days', 1).format();
+            });
+
+            var expectedDeltaY = y1.y - y0.y;
+            expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
+            expect(graph.labels.totals.y.delta).toEqual(expectedDeltaY);
+
+            spyOn(graph, 'draw_').andCallThrough();
+            newStart = moment(today).subtract('days', 49);
+            newEnd = moment(today).subtract('days', 30);
+            graph.update_([newStart.format(), newEnd.format()]);
+          });
+
+          waitsFor(function () {
+            return graph.draw_.callCount;
+          });
+
+          runs(function () {
+            expect(gObj1.remove).toHaveBeenCalled();
+            expect(gLabels1.remove).toHaveBeenCalled();
+
+            var gObj2 = graph.graphObject;
+            var graphData = gObj2.data;
+            expect(gObj2.$graphEl.length).toBeTruthy();
+            expect(graphData.length).toEqual(20);
+            expect(graphData[0].x).toEqual(newStart.format('YYYY-MM-DD'));
+            expect(graphData[19].x).toEqual(newEnd.format('YYYY-MM-DD'));
+
+            var y1 = _.find(data, function (d) {
+              return d.x === moment(newEnd).format();
+            });
+            var y0 = _.find(data, function (d) {
+              return d.x === moment(newEnd).subtract('days', 1).format();
+            });
+
+            var expectedDeltaY = y1.y - y0.y;
+            expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
+            expect(graph.labels.totals.y.delta).toEqual(expectedDeltaY);
+
+            $gc.trigger('REMOVE');
+          });
         });
-
-        var config = {
-          type: type,
-          data: data,
-          staticPath: basePath,
-          label: {}
-        };
-
-        if (type === 'easel.mix') {
-          config.mix = [{
-            type: 'bar',
-            yLength: 1
-          }, {
-            type: 'motionLine',
-            yLength: 1
-          }];
-        }
-
-        if (type === 'css.horizontalBar') {
-          config.width = '400px';
-        }
-
-        $gc = new ChartAPI.Graph(config, range);
-        $gc.trigger('GET_OBJECT', function (obj) {
-          graph = obj;
-          graph.graphData[range.unit].done(function (data) {
-            filteredData = data;
-            $gc.trigger('APPEND_TO', [$('body')]);
-          });
-        });
-        waitsFor(function () {
-          return graph.graphObject;
-        }, 'get graph object', 3000);
-
-        var newStart, newEnd, gObj1, gLabels1;
-        runs(function () {
-          gObj1 = graph.graphObject;
-          gLabels1 = graph.labels;
-
-          spyOn(gObj1, 'remove').andCallThrough();
-          spyOn(gLabels1, 'remove').andCallThrough();
-
-          var graphData = gObj1.data;
-          expect(graphData[0].x).toEqual(start.format('YYYY-MM-DD'));
-          expect(graphData[9].x).toEqual(end.format('YYYY-MM-DD'));
-
-          var y1 = _.find(data, function (d) {
-            return d.x === moment(end).format();
-          });
-          var y0 = _.find(data, function (d) {
-            return d.x === moment(end).subtract('days', 1).format();
-          });
-
-          var expectedDeltaY = y1.y - y0.y;
-          expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
-          expect(graph.labels.totals.y.delta).toEqual(expectedDeltaY);
-
-          spyOn(graph, 'draw_').andCallThrough();
-          newStart = moment(today).subtract('days', 49);
-          newEnd = moment(today).subtract('days', 30);
-          graph.update_([newStart.format(), newEnd.format()]);
-        });
-
-        waitsFor(function () {
-          return graph.draw_.callCount;
-        });
-
-        runs(function () {
-          expect(gObj1.remove).toHaveBeenCalled();
-          expect(gLabels1.remove).toHaveBeenCalled();
-
-          var gObj2 = graph.graphObject;
-          var graphData = gObj2.data;
-          expect(gObj2.$graphEl.length).toBeTruthy();
-          expect(graphData.length).toEqual(20);
-          expect(graphData[0].x).toEqual(newStart.format('YYYY-MM-DD'));
-          expect(graphData[19].x).toEqual(newEnd.format('YYYY-MM-DD'));
-
-          var y1 = _.find(data, function (d) {
-            return d.x === moment(newEnd).format();
-          });
-          var y0 = _.find(data, function (d) {
-            return d.x === moment(newEnd).subtract('days', 1).format();
-          });
-
-          var expectedDeltaY = y1.y - y0.y;
-          expectedDeltaY = ChartAPI.Data.addCommas(expectedDeltaY);
-          expect(graph.labels.totals.y.delta).toEqual(expectedDeltaY);
-
-          $gc.trigger('REMOVE');
-        });
-      });
+      }
     });
   });
 
   describe('use general data (no timeline)', function () {
     _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
-      it(type, function () {
-        var today = moment();
-        var data = [];
-        for (var i = 0; i < 30; i++) {
-          data.push({
-            x: moment(today).subtract('days', i * 2).format('YYYY-MM-DD'),
-            y: Math.ceil(Math.random() * 100),
-            y1: Math.ceil(Math.random() * 100)
+      if (/easel/.test(type) && !isIE8) {
+        it(type, function () {
+          var today = moment();
+          var data = [];
+          for (var i = 0; i < 30; i++) {
+            data.push({
+              x: moment(today).subtract('days', i * 2).format('YYYY-MM-DD'),
+              y: Math.ceil(Math.random() * 100),
+              y1: Math.ceil(Math.random() * 100)
+            });
+          }
+          var $gc, graph, filteredData;
+
+          var range = ChartAPI.Range.factory({
+            dataType: 'general'
           });
-        }
-        var $gc, graph, filteredData;
 
-        var range = ChartAPI.Range.factory({
-          dataType: 'general'
-        });
+          var config = {
+            type: type,
+            data: data,
+            staticPath: basePath,
+            label: {}
+          };
 
-        var config = {
-          type: type,
-          data: data,
-          staticPath: basePath,
-          label: {}
-        };
+          if (type === 'easel.mix') {
+            config.mix = [{
+              type: 'bar',
+              yLength: 1
+            }, {
+              type: 'motionLine',
+              yLength: 1
+            }];
+          }
 
-        if (type === 'easel.mix') {
-          config.mix = [{
-            type: 'bar',
-            yLength: 1
-          }, {
-            type: 'motionLine',
-            yLength: 1
-          }];
-        }
+          if (type === 'css.horizontalBar') {
+            config.width = '400px';
+          }
 
-        if (type === 'css.horizontalBar') {
-          config.width = '400px';
-        }
+          $gc = new ChartAPI.Graph(config, range);
+          $gc.trigger('GET_OBJECT', function (obj) {
+            graph = obj;
+            graph.graphData[range.unit].done(function (data) {
+              filteredData = data;
+              $gc.trigger('APPEND_TO', [$('body')]);
+            });
+          });
+          waitsFor(function () {
+            return graph.graphObject;
+          }, 'get graph object', 3000);
 
-        $gc = new ChartAPI.Graph(config, range);
-        $gc.trigger('GET_OBJECT', function (obj) {
-          graph = obj;
-          graph.graphData[range.unit].done(function (data) {
-            filteredData = data;
-            $gc.trigger('APPEND_TO', [$('body')]);
+          runs(function () {
+            expect($gc.length).toBeTruthy();
+            $gc.trigger('REMOVE');
           });
         });
-        waitsFor(function () {
-          return graph.graphObject;
-        }, 'get graph object', 3000);
-
-        runs(function () {
-          expect($gc.length).toBeTruthy();
-          $gc.trigger('REMOVE');
-        });
-      });
+      }
     });
   });
 
@@ -1166,7 +1174,7 @@ describe('graph', function () {
         };
 
         var range = {
-          unit: 'daily',
+          unit: 'daily'
         };
 
         $gc = new ChartAPI.Graph(config, range);
@@ -1179,7 +1187,7 @@ describe('graph', function () {
               width = realWidth;
             }, 50);
           }
-          return width
+          return width;
         });
         $gc.width(350);
 
@@ -1231,7 +1239,7 @@ describe('graph', function () {
         runs(function () {
           setTimeout(function () {
             flag = true;
-          }, 1000)
+          }, 1000);
         });
 
         waitsFor(function () {
@@ -1256,7 +1264,7 @@ describe('graph', function () {
         };
 
         var range = {
-          unit: 'daily',
+          unit: 'daily'
         };
 
         $gc = new ChartAPI.Graph(config, range);
