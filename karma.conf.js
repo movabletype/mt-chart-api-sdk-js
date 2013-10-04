@@ -21,7 +21,7 @@ module.exports = function (config) {
         included: false,
         served: true
       }, {
-        pattern: 'lib/mtchart.js',
+        pattern: 'lib/mtchart.min.js',
         watched: false
       }, {
         pattern: 'spec/*.json',
@@ -44,7 +44,7 @@ module.exports = function (config) {
       }, {
         pattern: 'deps/*.js',
         served: true,
-        included: true,
+        included: false,
         watched: false
       }, {
         pattern: 'lib/mtchart.css',
