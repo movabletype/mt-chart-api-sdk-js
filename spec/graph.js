@@ -299,7 +299,7 @@ describe('graph', function () {
     }
 
     _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
-      if (/easel/.test(type) && !isIE8) {
+      if (!/easel/.test(type) || !isIE8) {
         it(type, function () {
           var range = ChartAPI.Range.factory();
           var conf = {
@@ -594,7 +594,7 @@ describe('graph', function () {
 
   describe('update graph', function () {
     _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
-      if (/easel/.test(type) && !isIE8) {
+      if (/easel/.test(type) || !isIE8) {
         it('update range', function () {
           var today = moment();
           var data = [];
@@ -713,7 +713,7 @@ describe('graph', function () {
 
   describe('use general data (no timeline)', function () {
     _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
-      if (/easel/.test(type) && !isIE8) {
+      if (/easel/.test(type) || !isIE8) {
         it(type, function () {
           var today = moment();
           var data = [];
