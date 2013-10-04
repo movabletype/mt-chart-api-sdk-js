@@ -1,14 +1,15 @@
 describe('Build', function () {
-  it('Build with JSON file', function () {
-    var settings;
 
+  var basePath = !! window.__karma__ ? '/base' : '';
+
+  it('Build with JSON file', function () {
     runs(function () {
-      MT.ChartAPI.Build('/spec/build_settings.json').appendTo($('body'));
+      MT.ChartAPI.Build(basePath + '/spec/build_settings.json').appendTo($('body'));
     });
 
     waitsFor(function () {
-      return !!$('.mtchart-container').html()
-    });
+      return !!$('.mtchart-container').html();
+    }, 'append contents into .mtchart-container', 5000);
 
     runs(function () {
       var $con = $('.mtchart-container');
@@ -17,13 +18,13 @@ describe('Build', function () {
       expect($con.find('.slider-container').length).toBeTruthy();
       expect($con.find('.list-container').length).toBeTruthy();
       $con.remove();
-    })
+    });
   });
 
   it('Build with JSON object', function () {
     var settings, flag;
 
-    $.getJSON('/spec/build_settings.json', function (json) {
+    $.getJSON(basePath + '/spec/build_settings.json', function (json) {
       settings = json;
       flag = true;
     });
@@ -37,7 +38,7 @@ describe('Build', function () {
     });
 
     waitsFor(function () {
-      return !!$('.mtchart-container').length
+      return $('.mtchart-container').html() !== undefined;
     });
 
     runs(function () {
@@ -53,6 +54,7 @@ describe('Build', function () {
   it('Build graph only', function () {
     var settings = {
       "graph": {
+        "staticPath": basePath,
         "data": "/spec/graph_data.json"
       }
     };
@@ -60,7 +62,7 @@ describe('Build', function () {
     MT.ChartAPI.Build(settings).appendTo($('body'));
 
     waitsFor(function () {
-      return !!$('.mtchart-container').length
+      return !!$('.mtchart-container').length;
     });
 
     runs(function () {
@@ -76,6 +78,7 @@ describe('Build', function () {
   it('Build list only', function () {
     var settings = {
       "list": {
+        "staticPath": basePath,
         "data": "/spec/list_data.json",
         "template": "/spec/list_data.template"
       }
@@ -84,7 +87,7 @@ describe('Build', function () {
     MT.ChartAPI.Build(settings).appendTo($('body'));
 
     waitsFor(function () {
-      return !!$('.mtchart-container').length
+      return !!$('.mtchart-container').html();
     });
 
     runs(function () {
@@ -98,14 +101,14 @@ describe('Build', function () {
   });
 
   it('GET_CONTAINER event', function () {
-    var settings, $container;
+    var $container;
 
     runs(function () {
-      $container = MT.ChartAPI.Build('/spec/build_settings.json').appendTo($('body'));
+      $container = MT.ChartAPI.Build(basePath + '/spec/build_settings.json').appendTo($('body'));
     });
 
     waitsFor(function () {
-      return !!$('.mtchart-container').html()
+      return !!$('.mtchart-container').html();
     });
 
     var flag1, flag2, flag3;
@@ -137,6 +140,6 @@ describe('Build', function () {
 
     runs(function () {
       $container.remove();
-    })
+    });
   });
 });

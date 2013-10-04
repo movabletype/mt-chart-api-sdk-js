@@ -47,7 +47,7 @@ describe('range', function () {
         unit: 'quarter'
       };
       var range = ChartAPI.Range.factory(opt);
-      expect(range.start).toEqual(moment().subtract('month', 9 * 4).startOf('month').toDate());
+      expect(range.start).toEqual(moment().subtract('month', 9 * 3).startOf('month').toDate());
       defaultCheck(range, opt);
     });
 
@@ -124,11 +124,11 @@ describe('range', function () {
     it('quarter', function () {
       var range = ChartAPI.Range.factory({
         unit: 'quarter',
-        start: moment().subtract('month', 20 * 4).toDate(),
+        start: moment().subtract('month', 20 * 3).toDate(),
         length: 5
       });
       expect(range.min).toEqual(moment(range.start).startOf('month').toDate());
-      defaultCheck(range, 5, 'quarter', moment().subtract('month', 16 * 4).endOf('month').toDate());
+      defaultCheck(range, 5, 'quarter', moment().subtract('month', 16 * 3).endOf('month').toDate());
     });
 
     it('hourly', function () {
@@ -197,11 +197,11 @@ describe('range', function () {
     it('quarter', function () {
       var range = ChartAPI.Range.factory({
         unit: 'quarter',
-        end: moment().subtract('month', 20 * 4).toDate(),
+        end: moment().subtract('month', 20 * 3).toDate(),
         length: 5
       });
       expect(range.max).toEqual(moment(range.end).endOf('month').toDate());
-      defaultCheck(range, 5, 'quarter', moment().subtract('month', 24 * 4).startOf('month').toDate());
+      defaultCheck(range, 5, 'quarter', moment().subtract('month', 24 * 3).startOf('month').toDate());
     });
 
     it('hourly', function () {
@@ -244,8 +244,8 @@ describe('range', function () {
     it('quarter', function () {
       var opt = {
         unit: 'quarter',
-        start: moment().subtract('month', 20 * 4).toDate(),
-        end: moment().subtract('month', 6 * 4).toDate()
+        start: moment().subtract('month', 20 * 3).toDate(),
+        end: moment().subtract('month', 6 * 3).toDate()
       }
       var range = ChartAPI.Range.factory(opt);
       defaultCheck(range, opt, 'month');

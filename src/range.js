@@ -225,7 +225,7 @@ ChartAPI.Range.getNextDate = function (s, e, i, u) {
       d = new Date(year, month + i, 1);
     },
     'quarter': function (i) {
-      d = new Date(year, month + i * 4, 1);
+      d = new Date(year, month + i * 3, 1);
     },
     'weekly': function (i) {
       d = new Date(year, month, date + i * 7 - s.getDay());
@@ -284,7 +284,7 @@ ChartAPI.Range.getLength = function (s, e, u) {
       length = Math.ceil(e.getFullYear() * 12 + e.getMonth() - (s.getFullYear() * 12 + s.getMonth()));
     },
     'quarter': function () {
-      length = Math.ceil((e.getFullYear() * 12 + e.getMonth() - (s.getFullYear() * 12 + s.getMonth())) / 4);
+      length = Math.ceil((e.getFullYear() * 12 + e.getMonth() - (s.getFullYear() * 12 + s.getMonth())) / 3);
     },
     'weekly': function () {
       length = Math.ceil((ChartAPI.Date.getWeekStartday(e) - ChartAPI.Date.getWeekStartday(s)) / (7 * 24 * 60 * 60 * 1000));

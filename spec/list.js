@@ -1,4 +1,6 @@
 describe('List', function () {
+  var basePath = !! window.__karma__ ? '/base' : '';
+
   var orig = ChartAPI.List;
   ChartAPI.List = function (config, range) {
     var ret = orig.call(this, config, range);
@@ -15,6 +17,7 @@ describe('List', function () {
 
     it('default settings', function () {
       var config = {
+        staticPath: basePath,
         data: '/spec/list_data.json',
         template: '/spec/list_data.template'
       };
@@ -53,6 +56,7 @@ describe('List', function () {
 
       var config = {
         data: data,
+        staticPath: basePath,
         template: '/spec/list_data.template'
       };
       var $lc = new ChartAPI.List(config, {
@@ -79,17 +83,18 @@ describe('List', function () {
   describe('RequireJS', function () {
     var $requirejs, $config, list;
     beforeEach(function () {
-      $requirejs = $('<script src="/test/other_libs/require.js"></script>').appendTo($('head'));
+      $requirejs = $('<script src="' + basePath + '/test/other_libs/require.js"></script>').appendTo($('head'));
       waitsFor(function () {
         return !!window.requirejs;
       });
       runs(function () {
-        $config = $("<script>requirejs.config({baseUrl: '.',paths: { text: 'test/other_libs/text' }})</script>").appendTo($('head'));
+        $config = $("<script>requirejs.config({baseUrl: '" + basePath + "',paths: { text: 'test/other_libs/text' }})</script>").appendTo($('head'));
       });
     });
 
     it('get template with requirejs', function () {
       var config = {
+        staticPath: basePath,
         data: '/spec/list_data.json',
         template: '/spec/list_data.template'
       };
@@ -141,6 +146,7 @@ describe('List', function () {
     function init(config, range) {
       config = config || {};
       config.data = data;
+      config.staticPath = basePath;
       config.template = '/spec/list_data.template';
 
       range = range || {};
@@ -248,6 +254,7 @@ describe('List', function () {
   it('when config.data is null/undefined, getData only just calls callback', function () {
     var list;
     var config = {
+      staticPath: basePath,
       template: '/spec/list_data.template'
     };
     var $lc = new ChartAPI.List(config, {

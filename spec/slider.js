@@ -1,4 +1,6 @@
 describe('slider', function () {
+  var basePath = !! window.__karma__ ? '/base' : '';
+
   var orig = ChartAPI.Slider;
   ChartAPI.Slider = function (config, range, $dataRangeTarget, updateTarget, amountTarget) {
     var ret = orig.call(this, config, range, $dataRangeTarget, updateTarget, amountTarget);
@@ -14,7 +16,7 @@ describe('slider', function () {
     var data = [];
     var today = moment();
 
-    for (i = 0; i < 60; i++) {
+    for (var i = 0; i < 60; i++) {
       data.push({
         x: today.subtract('month', 1).format(),
         xLabel: today.format('YYYY-MM-DD'),
@@ -26,7 +28,8 @@ describe('slider', function () {
     var $gc;
     beforeEach(function () {
       $gc = new ChartAPI.Graph({
-        data: data
+        data: data,
+        staticPath: basePath
       });
       $gc.trigger('APPEND_TO', [$('body')]);
       waitsFor(function () {
@@ -77,12 +80,12 @@ describe('slider', function () {
         $gc.remove();
         slider.$slider.slider('destroy');
         $sc.remove();
-      })
+      });
 
       it('set slider amount position top', function () {
         var config = {
           'appendSliderAmountBottom': false
-        }
+        };
         init(config);
 
         runs(function () {
@@ -95,7 +98,7 @@ describe('slider', function () {
       it('set slider amount position top', function () {
         var config = {
           'appendSliderAmountBottom': true
-        }
+        };
         init(config);
 
         runs(function () {
@@ -103,8 +106,8 @@ describe('slider', function () {
           expect(slider.$sliderContainer.attr('id')).toEqual(slider.id + '-container');
           expect($sc.children().last().hasClass('amount')).toBe(true);
         });
-      })
-    })
+      });
+    });
   });
 
 
@@ -112,7 +115,7 @@ describe('slider', function () {
     var data = [];
     var today = moment();
 
-    for (i = 0; i < 60; i++) {
+    for (var i = 0; i < 60; i++) {
       data.push({
         x: today.subtract('month', 1).format(),
         xLabel: today.format('YYYY-MM-DD'),
@@ -124,7 +127,8 @@ describe('slider', function () {
     var $gc;
     beforeEach(function () {
       $gc = new ChartAPI.Graph({
-        data: data
+        data: data,
+        staticPath: basePath
       });
       $gc.trigger('APPEND_TO', [$('body')]);
       waitsFor(function () {
@@ -152,17 +156,18 @@ describe('slider', function () {
         $sc.trigger('ERASE');
       });
       waitsFor(function () {
-        return !$sc.html()
+        return !$sc.html();
       });
       runs(function () {
         expect($sc.html()).toBeFalsy();
         $sc.remove();
-      })
+      });
     });
 
     it('SET_DATA_RANGE', function () {
-      $gc2 = new ChartAPI.Graph({
-        data: data
+      var $gc2 = new ChartAPI.Graph({
+        data: data,
+        staticPath: basePath
       });
       $gc2.trigger('APPEND_TO', [$('body')]);
       waitsFor(function () {
@@ -191,6 +196,7 @@ describe('slider', function () {
 
     it('ADD_EVENT_LIST/REMOVE_EVENT_LIST', function () {
       var config = {
+        staticPath: basePath,
         data: '/spec/list_data.json',
         template: '/spec/list_data.template'
       };
@@ -265,7 +271,7 @@ describe('slider', function () {
         [s, e]
       ]);
       expect(slider.updateSliderAmount).toHaveBeenCalled();
-      expect(slider.$amount.text()).toEqual(data[5].xLabel.replace(/-[0-9]+$/, '') + ' - ' + data[1].xLabel.replace(/-[0-9]+$/, ''))
+      expect(slider.$amount.text()).toEqual(data[5].xLabel.replace(/-[0-9]+$/, '') + ' - ' + data[1].xLabel.replace(/-[0-9]+$/, ''));
       $sc.trigger('ERASE');
       $sc.remove();
     });
@@ -275,7 +281,7 @@ describe('slider', function () {
     var data = [];
     var today = moment();
 
-    for (i = 0; i < 60; i++) {
+    for (var i = 0; i < 60; i++) {
       data.push({
         x: today.subtract('month', 1).format(),
         xLabel: today.format('YYYY-MM-DD'),
@@ -289,7 +295,8 @@ describe('slider', function () {
 
     beforeEach(function () {
       $gc = new ChartAPI.Graph({
-        data: data
+        data: data,
+        staticPath: basePath
       });
       $gc.trigger('APPEND_TO', [$('body')]);
       waitsFor(function () {
@@ -311,7 +318,7 @@ describe('slider', function () {
       $gc.trigger('REMOVE');
       $sc.trigger('ERASE');
       $sc.remove();
-    })
+    });
 
     it('Slider slide', function () {
       $sc.find('.ui-slider-handle').first().simulate("drag", {
@@ -325,7 +332,7 @@ describe('slider', function () {
 
       runs(function () {
         expect(slider.updateSliderAmount).toHaveBeenCalled();
-        expect(slider.$amount.text()).toEqual(data[4].xLabel.replace(/-[0-9]+$/, '') + ' - ' + data[0].xLabel.replace(/-[0-9]+$/, ''))
+        expect(slider.$amount.text()).toEqual(data[4].xLabel.replace(/-[0-9]+$/, '') + ' - ' + data[0].xLabel.replace(/-[0-9]+$/, ''));
       });
     });
 
@@ -342,7 +349,7 @@ describe('slider', function () {
       var count;
       runs(function () {
         expect(slider.updateSliderAmount).toHaveBeenCalled();
-        expect(slider.$amount.text()).toEqual(data[18].xLabel.replace(/-[0-9]+$/, '') + ' - ' + data[9].xLabel.replace(/-[0-9]+$/, ''))
+        expect(slider.$amount.text()).toEqual(data[18].xLabel.replace(/-[0-9]+$/, '') + ' - ' + data[9].xLabel.replace(/-[0-9]+$/, ''));
         count = slider.updateSliderAmount.callCount;
         $sc.find('.ui-slider-handle').last().simulate("drag", {
           dx: (0.075 * $(window).width()),
@@ -355,7 +362,7 @@ describe('slider', function () {
       });
 
       runs(function () {
-        expect(slider.$amount.text()).toEqual(data[13].xLabel.replace(/-[0-9]+$/, '') + ' - ' + data[4].xLabel.replace(/-[0-9]+$/, ''))
+        expect(slider.$amount.text()).toEqual(data[13].xLabel.replace(/-[0-9]+$/, '') + ' - ' + data[4].xLabel.replace(/-[0-9]+$/, ''));
       });
     });
   });
@@ -364,7 +371,7 @@ describe('slider', function () {
     var data = [];
     var today = moment();
 
-    for (i = 0; i < 60; i++) {
+    for (var i = 0; i < 60; i++) {
       data.push({
         x: today.subtract('month', 1).format(),
         xLabel: today.format('YYYY-MM-DD'),
@@ -379,6 +386,7 @@ describe('slider', function () {
     beforeEach(function () {
       $gc = new ChartAPI.Graph({
         data: data,
+        staticPath: basePath,
         dataLabel: 'xLabel'
       }, {
         maxLength: 10,
@@ -405,7 +413,7 @@ describe('slider', function () {
       $gc.trigger('REMOVE');
       $sc.trigger('ERASE');
       $sc.remove();
-    })
+    });
 
     it('Slider slide', function () {
       $sc.find('.ui-slider-handle').last().simulate("drag", {

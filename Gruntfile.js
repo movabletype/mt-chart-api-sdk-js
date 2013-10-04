@@ -165,6 +165,20 @@ module.exports = function (grunt) {
       }
     },
     'compile-handlebars': {
+      build_settings_karma: {
+        template: 'spec/build_settings.hbs',
+        templateData: {
+          basePath: '"/base"'
+        },
+        output: 'spec/build_settings.json'
+      },
+      build_settings_test: {
+        template: 'spec/build_settings.hbs',
+        templateData: {
+          basePath: '""'
+        },
+        output: 'spec/build_settings.json'
+      },
       test_graph: {
         template: 'spec/graph_data.hbs',
         templateData: {
@@ -211,8 +225,9 @@ module.exports = function (grunt) {
       }
     }
   });
-  grunt.registerTask('test', ['preprocess', 'compile-handlebars:test_graph', 'compile-handlebars:test_list', 'connect:jasmine', 'jasmine:test']);
-  grunt.registerTask('coverage', ['preprocess', 'compile-handlebars:test_graph', 'compile-handlebars:test_list', 'connect:coverage', 'jasmine:coverage']);
+  grunt.registerTask('test', ['preprocess', 'compile-handlebars:test_graph', 'compile-handlebars:test_list', 'compile-handlebars:build_settings_test', 'connect:jasmine', 'jasmine:test']);
+  grunt.registerTask('coverage', ['preprocess', 'compile-handlebars:test_graph', 'compile-handlebars:test_list', 'compile-handlebars:build_settings_test', 'connect:coverage', 'jasmine:coverage']);
   grunt.registerTask('dev', ['clean', 'preprocess', 'cssmin']);
+  grunt.registerTask('karmarun', ['preprocess', 'compile-handlebars:test_graph', 'compile-handlebars:test_list', 'compile-handlebars:build_settings_karma', 'karma'])
   grunt.registerTask('build', ['clean', 'preprocess', 'copy', 'cssmin', 'uglify']);
 };

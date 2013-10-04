@@ -93,7 +93,7 @@ ChartAPI.Date.parse = function (d) {
     var year, month, day;
     year = parseInt(date[0], 10) || today.getFullYear();
     year = year < 100 ? year + 1900 : year;
-    month = parseInt(date[1], 10) - 1 || today.getMonth();
+    month = date[1] ? parseInt(date[1], 10) - 1 : 0;
     day = parseInt(date[2], 10) || 1;
 
     var time, timezone, timezoneOffset;
@@ -177,7 +177,7 @@ ChartAPI.Date.calcDate = function (date, l, u, sym) {
       adjustEndDate();
     },
     'quarter': function () {
-      m = m + (sym * l * 4);
+      m = m + (sym * l * 3);
       adjustEndDate();
     },
     'weekly': function () {

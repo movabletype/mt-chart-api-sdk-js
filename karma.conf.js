@@ -17,10 +17,49 @@ module.exports = function (config) {
         pattern: 'sample/js/*.js',
         watched: false
       }, {
+        pattern: 'sample/js/*.min.map',
+        included: false,
+        served: true
+      }, {
         pattern: 'lib/mtchart.js',
         watched: false
       }, {
         pattern: 'spec/*.json',
+        watched: false,
+        included: false,
+        served: true
+      }, {
+        pattern: 'spec/*.template',
+        watched: false,
+        included: false,
+        served: true
+      }, {
+        pattern: 'test/other_libs/*.js',
+        served: true,
+        included: false,
+        watched: false
+      }, {
+        pattern: 'test/spec_helpers/*.js',
+        watched: false
+      }, {
+        pattern: 'deps/*.js',
+        served: true,
+        included: true,
+        watched: false
+      }, {
+        pattern: 'lib/mtchart.css',
+        served: true,
+        included: false,
+        watched: false
+      }, {
+        pattern: 'sample/css/jquery-ui.min.css',
+        served: true,
+        included: false,
+        watched: false
+      }, {
+        pattern: 'sample/css/images/*.png',
+        served: true,
+        included: false,
         watched: false
       },
       'spec/*.js'

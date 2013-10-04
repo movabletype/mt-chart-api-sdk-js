@@ -1,4 +1,6 @@
 describe('graph', function () {
+  var basePath = !! window.__karma__ ? '/base' : '';
+
   var orig = ChartAPI.Graph;
   ChartAPI.Graph = function (config, range) {
     var ret = orig.call(this, config, range);
@@ -202,7 +204,7 @@ describe('graph', function () {
 
   describe('get graph data', function () {
     it('getJSON', function () {
-      var staticPath = !window.__karma__ ? 'spec/' : 'base/spec/';
+      var staticPath = !window.__karma__ ? '/spec/' : '/base/spec/';
       var $gc = new ChartAPI.Graph({
         staticPath: staticPath,
         data: 'graph_data.json'
@@ -279,6 +281,7 @@ describe('graph', function () {
       }
       conf = conf || {};
       conf.data = data;
+      conf.staicPath = basePath;
 
       $gc = new ChartAPI.Graph(conf, range);
       $gc.trigger('GET_OBJECT', function (obj) {
@@ -378,7 +381,8 @@ describe('graph', function () {
 
     function init(conf, range) {
       $gc = new ChartAPI.Graph(_.extend({
-        data: data
+        data: data,
+        staticPath: basePath
       }, conf), (range || {
         unit: 'monthly'
       }));
@@ -610,6 +614,7 @@ describe('graph', function () {
         var config = {
           type: type,
           data: data,
+          staticPath: basePath,
           label: {}
         };
 
@@ -721,6 +726,7 @@ describe('graph', function () {
         var config = {
           type: type,
           data: data,
+          staticPath: basePath,
           label: {}
         };
 
@@ -845,12 +851,12 @@ describe('graph', function () {
 
       expect(window.Morris).toBeUndefined();
 
-      $requirejs = $('<script src="/test/other_libs/require.js"></script>').appendTo($('head'));
+      $requirejs = $('<script src="' + basePath + '/test/other_libs/require.js"></script>').appendTo($('head'));
       waitsFor(function () {
         return !!window.requirejs;
       });
       runs(function () {
-        $config = $("<script>requirejs.config({baseUrl: '.',paths: { text: 'test/other_libs/text',raphael:'deps/raphael-min',morris:'deps/morris.min' }})</script>").appendTo($('head'));
+        $config = $("<script>requirejs.config({baseUrl: '" + basePath + "',paths: { text: 'test/other_libs/text',raphael:'deps/raphael-min',morris:'deps/morris.min' }})</script>").appendTo($('head'));
       });
 
       var graph;
@@ -858,6 +864,7 @@ describe('graph', function () {
         var config = {
           type: 'morris.line',
           data: data,
+          staticPath: basePath,
           pointStrokeColors: '#ccc,#f00'
         };
 
@@ -901,6 +908,7 @@ describe('graph', function () {
       var config = {
         type: 'morris.line',
         data: data,
+        staticPath: basePath,
         smooth: false
       };
 
@@ -943,6 +951,7 @@ describe('graph', function () {
       var config = {
         type: 'morris.donut',
         data: data,
+        staticPath: basePath,
         donutsFormatter: jasmine.createSpy('donutsFormatter')
       };
 
@@ -983,6 +992,7 @@ describe('graph', function () {
       var $gc, graph;
       var config = {
         type: 'morris.bar',
+        staticPath: basePath,
         data: data
       };
 
@@ -1014,6 +1024,7 @@ describe('graph', function () {
       var $gc, graph;
       var config = {
         type: 'morris.donut',
+        staticPath: basePath,
         data: data
       };
 
@@ -1047,6 +1058,7 @@ describe('graph', function () {
       var $gc, graph;
       var config = {
         type: 'morris.line',
+        staticPath: basePath,
         data: data
       };
 
@@ -1091,20 +1103,21 @@ describe('graph', function () {
         $('script[src$="easeljs-0.6.1.min.js"]').remove();
         delete window.createjs;
 
-        $requirejs = $('<script src="/test/other_libs/require.js"></script>').appendTo($('head'));
+        $requirejs = $('<script src="' + basePath + '/test/other_libs/require.js"></script>').appendTo($('head'));
 
         waitsFor(function () {
           return !!window.requirejs;
         });
 
         runs(function () {
-          $config = $("<script>requirejs.config({baseUrl: '.',paths: { text: 'test/other_libs/text', 'easeljs':'deps/easeljs-0.6.1.min' },shim:{'easeljs':{'exports': 'createjs'}}})</script>").appendTo($('head'));
+          $config = $("<script>requirejs.config({baseUrl: '" + basePath + "',paths: { text: 'test/other_libs/text', 'easeljs':'deps/easeljs-0.6.1.min' },shim:{'easeljs':{'exports': 'createjs'}}})</script>").appendTo($('head'));
         });
 
         var graph;
         runs(function () {
           var config = {
             type: 'easel.bar',
+            staticPath: basePath,
             data: data
           };
 
@@ -1139,7 +1152,7 @@ describe('graph', function () {
           delete window.require;
           delete window.define;
           delete window.requirejs;
-          $('<script src="deps/easeljs-0.6.1.min.js"></script>').appendTo($('head'));
+          $('<script src="' + basePath + '/deps/easeljs-0.6.1.min.js"></script>').appendTo($('head'));
         });
       });
 
@@ -1148,6 +1161,7 @@ describe('graph', function () {
         var config = {
           type: 'easel.motionLine',
           data: data,
+          staticPath: basePath,
           drawPointer: false
         };
 
@@ -1189,6 +1203,7 @@ describe('graph', function () {
         var config = {
           type: 'easel.motionLine',
           data: data,
+          staticPath: basePath,
           drawPointer: true
         };
 
@@ -1236,6 +1251,7 @@ describe('graph', function () {
         var graph;
         var config = {
           type: 'easel.bar',
+          staticPath: basePath,
           data: data
         };
 
@@ -1268,6 +1284,7 @@ describe('graph', function () {
         var $gc, graph;
         var config = {
           type: 'easel.bar',
+          staticPath: basePath,
           data: data
         };
 
