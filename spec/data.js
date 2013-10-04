@@ -169,9 +169,9 @@ describe('data', function () {
 
     describe('unit', function () {
       var i, data,
-        day = moment('2013-09-16'),
-        min = moment("2013-08-15 00:00:00"),
-        max = moment("2013-09-05 23:59:59"),
+        day = moment('2013-09-16T00:00:00+09:00'),
+        min = moment("2013-08-15T00:00:00+09:00"),
+        max = moment("2013-09-05T23:59:59+09:00"),
         minMinus = moment(min).subtract('seconds', 1),
         maxPlus = moment(max).add('seconds', 1);
 
