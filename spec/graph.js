@@ -801,7 +801,7 @@ describe('graph', function () {
       spyOn(ChartAPI.Graph.test, 'svg').andReturn(false);
       var ret = ChartAPI.Graph.test.vml();
       var ua = navigator.userAgent;
-      if (/Trident/.test(ua)) {
+      if (/MSIE [89]/.test(ua)) {
         expect(ret).toBe(true);
       } else {
         expect(ret).toBe(false);
@@ -811,7 +811,7 @@ describe('graph', function () {
     it('svg', function () {
       var ret = ChartAPI.Graph.test.svg();
       var ua = navigator.userAgent;
-      if (/Trident/.test(ua)) {
+      if (/MSIE 8/.test(ua)) {
         expect(ret).toBe(false);
       } else {
         expect(ret).toBe(true);
@@ -821,7 +821,7 @@ describe('graph', function () {
     it('canvas', function () {
       var ret = ChartAPI.Graph.test.canvas();
       var ua = navigator.userAgent;
-      if (/Trident\/[45]/.test(ua)) {
+      if (/MSIE [89]/.test(ua)) {
         expect(ret).toBe(false);
       } else {
         expect(ret).toBe(true);
