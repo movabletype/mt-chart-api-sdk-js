@@ -122,9 +122,9 @@ describe('List', function () {
       $requirejs.remove();
       $config.remove();
       $('script[src$="text.js"]').remove();
-      delete window.require;
-      delete window.define;
-      delete window.requirejs;
+      window.require = undefined;
+      window.define = undefined;
+      window.requirejs = undefined;
     });
   });
 

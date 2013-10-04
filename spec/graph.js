@@ -233,7 +233,7 @@ describe('graph', function () {
     it('get JSON Object', function () {
       var $gc = new ChartAPI.Graph({
         data: [{
-          x: moment().toISOString(),
+          x: moment().format(),
           y: 1
         }]
       });
@@ -854,8 +854,8 @@ describe('graph', function () {
 
       $('script[src$="morris.min.js"]').remove();
       $('script[src$="raphael-min.js"]').remove();
-      delete window.Morris;
-      delete window.Raphael;
+      window.Morris = undefined;
+      window.Raphael = undefined;
 
       expect(window.Morris).toBeUndefined();
 
@@ -905,9 +905,9 @@ describe('graph', function () {
         $requirejs.remove();
         $config.remove();
         $('script[src$="text.js"]').remove();
-        delete window.require;
-        delete window.define;
-        delete window.requirejs;
+        window.require = undefined;
+        window.define = undefined;
+        window.requirejs = undefined;
       });
     });
 
@@ -1109,7 +1109,7 @@ describe('graph', function () {
         var $requirejs, $config;
 
         $('script[src$="easeljs-0.6.1.min.js"]').remove();
-        delete window.createjs;
+        window.createjs = undefined;
 
         $requirejs = $('<script src="' + basePath + '/test/other_libs/require.js"></script>').appendTo($('head'));
 
@@ -1157,9 +1157,9 @@ describe('graph', function () {
           $requirejs.remove();
           $config.remove();
           $('script[src$="text.js"]').remove();
-          delete window.require;
-          delete window.define;
-          delete window.requirejs;
+          window.require = undefined;
+          window.define = undefined;
+          window.requirejs = undefined;
           $('<script src="' + basePath + '/deps/easeljs-0.6.1.min.js"></script>').appendTo($('head'));
         });
       });
