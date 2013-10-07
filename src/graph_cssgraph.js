@@ -137,9 +137,8 @@ ChartAPI.Graph.css.Base.prototype.ratioHorizontalBar = function (data, config, r
 
     for (j = 0; j < yLength; j++) {
       width = Math.floor((dataY[j] / totalY) * 1000) / 10;
-
       if (width) {
-        if (yLength === j) {
+        if (yLength === j + 1) {
           width = 100 - totalWidth;
         }
         totalWidth = totalWidth + width;
