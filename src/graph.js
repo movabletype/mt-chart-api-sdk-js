@@ -278,18 +278,18 @@ ChartAPI.Graph.prototype.draw_ = function (data, range, config) {
         if (window.require && typeof require === 'function') {
           var templateType = config.label.type;
           require([templateType + '!' + config.staticPath + labelTemplate], $.proxy(function (template) {
-            labelTemplate = template;
+            labelTemplate = this.labelTemplate = template;
             finalize();
           }, this));
         } else {
           var dfd = $.get(config.staticPath + labelTemplate, 'text');
           ChartAPI.Data.getData(dfd, this.$graphContainer, $.proxy(function (template) {
-            labelTemplate = template;
+            labelTemplate = this.labelTemplate = template;
             finalize();
           }, this));
         }
       } else {
-        labelTemplate = '<span class="graph-label-label"></span>';
+        labelTemplate = this.labelTemplate = '<span class="graph-label-label"></span>';
         finalize();
       }
     }
