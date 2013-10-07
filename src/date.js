@@ -100,25 +100,28 @@ ChartAPI.Date.parse = function (d) {
 
     if (arr[1]) {
       var arr2 = arr[1].split(/[\+\-Z]/);
-      time = arr2[0] ? arr2[0].split(/\D/) : [0, 0, 0];
+      time = arr2[0] ? arr2[0].split(/[:\.]/) : [0, 0, 0, 0];
       if (/Z$/.test(d)) {
         timezoneOffset = 0;
       } else {
-        timezone = arr2[1].split(/\D/);
+        timezone = arr2[1] ? arr2[1].split(/\D/) : [0, 0];
         var sym = /\+/.test(arr[1]) ? -1 : 1;
         timezoneOffset = sym * ((parseInt(timezone[0], 10) || 0) * 60 + (parseInt(timezone[1], 10) || 0));
       }
     } else {
       time = [0, 0, 0];
-      /* if string is like ISO8601, use UTC */
+      /* if the string is like ISO8601 date-only, use UTC (follows ES5 convention) */
       timezoneOffset = /\d{4}-\d{2}-\d{2}/.test(arr[0]) ? 0 : today.getTimezoneOffset();
     }
 
-    var hour, minute, second;
+    var hour, minute, second, millisecond;
     hour = parseInt(time[0], 10) || 0;
     minute = parseInt(time[1], 10) || 0;
+
     second = parseInt(time[2], 10) || 0;
-    date = new Date(year, month, day, hour, minute, second);
+    millisecond = parseInt(time[3], 10) || 0;
+
+    date = new Date(year, month, day, hour, minute, second, millisecond);
 
     if (timezoneOffset !== today.getTimezoneOffset()) {
       var utc = date.valueOf() - today.getTimezoneOffset() * 1000 * 60;
