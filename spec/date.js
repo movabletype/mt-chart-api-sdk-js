@@ -4,7 +4,7 @@ describe('date', function () {
     beforeEach(function () {
       spyOn(Date, 'parse').andReturn(Date.parse());
       today = moment().startOf('second');
-    })
+    });
 
     it('parse manually', function () {
       var date = ChartAPI.Date.parse(today.format());
@@ -59,7 +59,14 @@ describe('date', function () {
       var str = d + '-04:30';
       var date = ChartAPI.Date.parse(str);
       expect(date.valueOf()).toEqual(today.toDate().valueOf() - today.toDate().getTimezoneOffset() * 1000 * 60 + 270 * 1000 * 60);
-    })
+    });
+
+    it('parse with millisecond', function () {
+      var day = moment();
+      var str = day.format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      var date = ChartAPI.Date.parse(str);
+      expect(date.valueOf()).toEqual(day.toDate().valueOf());
+    });
   });
 
   describe('calculate end of month', function () {
@@ -68,7 +75,7 @@ describe('date', function () {
       var calcDate = ChartAPI.Date.calcDate(date, 6, 'monthly');
       expect(calcDate.valueOf()).toEqual((new Date(2014, 1, 28)).valueOf());
 
-      var calcDate = ChartAPI.Date.calcDate(date, 8, 'monthly', true);
+      calcDate = ChartAPI.Date.calcDate(date, 8, 'monthly', true);
       expect(calcDate.valueOf()).toEqual((new Date(2013, 1, 28)).valueOf());
     });
 
@@ -77,7 +84,7 @@ describe('date', function () {
       var calcDate = ChartAPI.Date.calcDate(date, 2, 'yearly');
       expect(calcDate.valueOf()).toEqual((new Date(2013, 1, 28)).valueOf());
 
-      var calcDate = ChartAPI.Date.calcDate(date, 2, 'yearly', true);
+      calcDate = ChartAPI.Date.calcDate(date, 2, 'yearly', true);
       expect(calcDate.valueOf()).toEqual((new Date(2011, 1, 28)).valueOf());
     });
 
@@ -86,8 +93,8 @@ describe('date', function () {
       var calcDate = ChartAPI.Date.calcDate(date, 4, 'quarter');
       expect(calcDate.valueOf()).toEqual((new Date(2013, 3, 30)).valueOf());
 
-      var calcDate = ChartAPI.Date.calcDate(date, 2, 'quarter', true);
+      calcDate = ChartAPI.Date.calcDate(date, 2, 'quarter', true);
       expect(calcDate.valueOf()).toEqual((new Date(2012, 3, 30)).valueOf());
     });
-  })
+  });
 });

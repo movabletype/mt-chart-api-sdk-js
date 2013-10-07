@@ -362,4 +362,32 @@ describe('range', function () {
     expect(range.dataType).toEqual('timeline');
     expect(range.isTimeline).toBe(true);
   });
+
+  describe('calcNum', function () {
+    it('calcNum with autoSized and start option', function () {
+      spyOn($.prototype, 'width').andReturn(400);
+      var range = ChartAPI.Range.calcNum(undefined, 10, 10, 90, 'monthly', 'general', true);
+      expect(range.maxLength).toEqual(9);
+      expect(range.length).toEqual(9);
+      expect(range.start).toEqual(1);
+      expect(range.end).toEqual(10);
+    });
+
+    it('calcNum with autoSize and end option', function () {
+      spyOn($.prototype, 'width').andReturn(300);
+      var range = ChartAPI.Range.calcNum(10, undefined, 10, 90, 'monthly', 'general', true);
+      expect(range.maxLength).toEqual(7);
+      expect(range.length).toEqual(7);
+      expect(range.start).toEqual(10);
+      expect(range.end).toEqual(17);
+    });
+
+    it('start value should not be less than zero', function () {
+      var range = ChartAPI.Range.calcNum(undefined, 5, 10, 90, 'monthly', 'general', false);
+      expect(range.maxLength).toEqual(90);
+      expect(range.length).toEqual(6);
+      expect(range.start).toEqual(0);
+      expect(range.end).toEqual(5);
+    });
+  });
 });

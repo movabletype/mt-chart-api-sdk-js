@@ -81,18 +81,21 @@ describe('graph', function () {
     });
 
     it('update with autoResize', function () {
+      var count = 0;
       var $gc = new ChartAPI.Graph({
         data: data,
         autoResize: true
       });
       $gc.trigger('GET_OBJECT', function (obj) {
         graph = obj;
+        $gc.trigger('APPEND_TO', [$('body')]);
       });
       waitsFor(function () {
-        return graph;
+        return graph && $gc.html();
       }, 'get graph object', 3000);
       runs(function () {
         spyOn(graph, 'updateFunc').andCallThrough();
+        spyOn(graph, 'update_').andCallThrough();
         graph.setAutoResizeUpdate();
         var ev = $.Event('orientationchange');
         $(window).trigger(ev);
@@ -100,15 +103,28 @@ describe('graph', function () {
       waitsFor(function () {
         return graph.updateFunc.callCount === 1;
       });
+
+      var origFunc = jQuery.prototype.width;
       runs(function () {
         expect(graph.updateFunc.callCount).toEqual(1);
-        $(window).trigger('debouncedresize');
+        spyOn($.prototype, 'width').andCallFake(function () {
+          if (this[0] === window) {
+            count++;
+            return [300, 400, 200, 100][(count % 4)];
+          } else {
+            return origFunc.apply(this, arguments);
+          }
+        });
+        $(window).trigger('resize');
       });
+
       waitsFor(function () {
         return graph.updateFunc.callCount === 2;
       });
       runs(function () {
         expect(graph.updateFunc.callCount).toEqual(2);
+        expect(graph.update_).toHaveBeenCalled();
+        $gc.trigger('REMOVE');
       });
     });
 
@@ -310,6 +326,13 @@ describe('graph', function () {
               test: 'canvas',
               type: 'morris.bar'
             };
+          }
+          if (/css/.test(type)) {
+            conf.yLength = 2;
+            conf.showDate = true;
+            conf.showCount = true;
+            conf.labelClasses = ['foo', 'bar'];
+            conf.labelColors = ['#000', '#fff'];
           }
           if (type === 'easel.mix') {
             conf.mix = [{
@@ -589,6 +612,190 @@ describe('graph', function () {
     it('getDelta_ returns blank when data has no y data', function () {
       var delta = ChartAPI.Graph.prototype.getDelta_.call(this, [{}], 0);
       expect(delta).toEqual('');
+    });
+
+    describe('label with data', function () {
+      it('use underscore library', function () {
+        var range, config;
+        range = ChartAPI.Range.factory({
+          unit: 'monthly'
+        });
+
+        runs(function () {
+          init({
+            yLength: 1,
+            staticPath: basePath,
+            label: {
+              data: '/spec/graph_label2_data.json',
+              template: '/spec/graph_label2.template',
+              hideTotalCount: true,
+              hideDeltaCount: true
+            }
+          }, range);
+          $gc.trigger('APPEND_TO', [$('body')]);
+        });
+
+        waitsFor(function () {
+          return graph.labels && $gc.html()
+        });
+
+        runs(function () {
+          expect(graph.labels).toBeDefined();
+          expect($.trim($gc.find('.graph-label').text())).toEqual('This is Label')
+          $gc.trigger('REMOVE');
+        });
+      });
+
+      it('use function', function () {
+        var range;
+        var $requirejs, $config;
+
+        range = ChartAPI.Range.factory({
+          unit: 'monthly'
+        });
+
+        $requirejs = $('<script src="' + basePath + '/test/other_libs/require.js"></script>').appendTo($('head'));
+        waitsFor(function () {
+          return !!window.requirejs;
+        });
+
+        runs(function () {
+          var basePath = basePath || '.';
+          $config = $("<script>requirejs.config({baseUrl: '" + basePath + "',paths: { text: 'test/other_libs/text', hbs:'test/other_libs/require-handlebars-plugin/hbs', 'handlebars': 'test/other_libs/require-handlebars-plugin/Handlebars','i18nprecompile': 'test/other_libs/require-handlebars-plugin/hbs/i18nprecompile','underscore':'test/other_libs/require-handlebars-plugin/hbs/underscore','json2': 'test/other_libs/require-handlebars-plugin/hbs/json2' }, shim:{underscore:{exports:'_'}},hbs:{disableI18n:true,disableHelpers:true,templateExtension:'hbs',compileOptions:{} } })</script>").appendTo($('head'));
+          init({
+            yLength: 1,
+            label: {
+              type: 'hbs',
+              data: {
+                str: 'Yes I am'
+              },
+              template: 'spec/graph_label3'
+            },
+            hideTotalCount: true,
+            hideDeltaCount: true
+          }, range);
+          $gc.trigger('APPEND_TO', [$('body')]);
+        });
+
+        waitsFor(function () {
+          return graph.labels && $gc.html();
+        });
+
+        runs(function () {
+          expect(graph.labels).toBeDefined();
+          expect($.trim($gc.find('.graph-label').text())).toEqual('Yes I am')
+          $gc.trigger('REMOVE');
+        });
+
+        runs(function () {
+          $requirejs.remove();
+          $config.remove();
+          window.require = undefined;
+          window.define = undefined;
+          window.requirejs = undefined;
+        });
+      });
+
+      it('use no library', function () {
+        var range, config;
+        var origUnderScore = window._;
+        range = ChartAPI.Range.factory({
+          unit: 'monthly'
+        });
+
+        runs(function () {
+          init({
+            yLength: 1,
+            staticPath: basePath,
+            label: {
+              data: '/spec/graph_label2_data.json',
+              template: '/spec/graph_label2.template',
+              hideTotalCount: true,
+              hideDeltaCount: true
+            }
+          }, range);
+
+          window._ = undefined;
+          $gc.trigger('APPEND_TO', [$('body')]);
+        });
+
+        waitsFor(function () {
+          return graph.labels && $gc.html()
+        });
+
+        runs(function () {
+          expect(graph.labels).toBeDefined();
+          expect($.trim($gc.find('.graph-label').text())).toEqual('<%= str %>')
+          $gc.trigger('REMOVE');
+          window._ = origUnderScore;
+        });
+      });
+    });
+
+    it('load with requireJS and cache tempalte', function () {
+      var range;
+      var $requirejs, $config;
+      range = ChartAPI.Range.factory({
+        unit: 'monthly'
+      });
+
+      data = [];
+      for (var i = 0; i < 20; i++) {
+        data.push({
+          x: moment(today).subtract('month', i).format(),
+          y: 20000 - i * 1000,
+          y1: 40000 - (i * 2000)
+        });
+      }
+
+      $requirejs = $('<script src="' + basePath + '/test/other_libs/require.js"></script>').appendTo($('head'));
+      waitsFor(function () {
+        return !!window.requirejs;
+      });
+
+      runs(function () {
+        $config = $("<script>requirejs.config({baseUrl: '" + basePath + "',paths: { text: 'test/other_libs/text',hbs:'test/other_libs/require-handlebars-plugin/hbs' }})</script>").appendTo($('head'));
+        init({
+          yLength: 2,
+          label: {
+            type: 'text',
+            template: basePath + '/spec/graph_label.template'
+          }
+        }, range);
+        $gc.trigger('APPEND_TO', [$('body')]);
+      });
+
+      waitsFor(function () {
+        return graph.labels && $gc.html();
+      });
+
+      runs(function () {
+        var labels = graph.labels;
+        expect(labels.totals).toBeDefined();
+        var y = labels.totals.y;
+        var y1 = labels.totals.y1;
+
+        expect(y).toBeDefined();
+        expect(y1).toBeDefined();
+        expect(y.$totalContainer.length).toBeTruthy();
+        expect(y1.$totalContainer.length).toBeTruthy();
+        expect(y.count).toEqual('210,000');
+        expect(y.delta).toEqual('1,000');
+        expect(y.deltaClass).toEqual('plus');
+        expect(y1.count).toEqual('420,000');
+        expect(y1.delta).toEqual('2,000');
+        expect(y1.deltaClass).toEqual('plus');
+        $gc.trigger('REMOVE');
+      });
+
+      runs(function () {
+        $requirejs.remove();
+        $config.remove();
+        $('script[src$="text.js"]').remove();
+        window.require = undefined;
+        window.define = undefined;
+        window.requirejs = undefined;
+      });
     });
   });
 
