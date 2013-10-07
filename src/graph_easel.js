@@ -197,7 +197,7 @@ ChartAPI.Graph.easel.Base.prototype.convertColor = function (str, alpha) {
     str = createjs.Graphics.getRGB(str, alpha);
   } else if (str.indexOf('rgb') !== -1) {
     str = str.replace(/^rgba?\(/, '').replace(/\)$/, '');
-    str = createjs.Graphics.getRGB.apply(null, str.split(/,/))
+    str = createjs.Graphics.getRGB.apply(null, str.split(/,/));
   }
   return str;
 };
