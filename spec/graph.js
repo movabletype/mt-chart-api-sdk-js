@@ -660,7 +660,6 @@ describe('graph', function () {
         });
 
         runs(function () {
-          var basePath = basePath || '.';
           $config = $("<script>requirejs.config({baseUrl: '" + basePath + "',paths: { text: 'test/other_libs/text', hbs:'test/other_libs/require-handlebars-plugin/hbs', 'handlebars': 'test/other_libs/require-handlebars-plugin/Handlebars','i18nprecompile': 'test/other_libs/require-handlebars-plugin/hbs/i18nprecompile','underscore':'test/other_libs/require-handlebars-plugin/hbs/underscore','json2': 'test/other_libs/require-handlebars-plugin/hbs/json2' }, shim:{underscore:{exports:'_'}},hbs:{disableI18n:true,disableHelpers:true,templateExtension:'hbs',compileOptions:{} } })</script>").appendTo($('head'));
           init({
             yLength: 1,
@@ -669,7 +668,7 @@ describe('graph', function () {
               data: {
                 str: 'Yes I am'
               },
-              template: 'spec/graph_label3'
+              template: '/spec/graph_label3'
             },
             hideTotalCount: true,
             hideDeltaCount: true
@@ -759,7 +758,7 @@ describe('graph', function () {
           yLength: 2,
           label: {
             type: 'text',
-            template: basePath + '/spec/graph_label.template'
+            template: '/spec/graph_label.template'
           }
         }, range);
         $gc.trigger('APPEND_TO', [$('body')]);

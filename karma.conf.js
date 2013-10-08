@@ -34,7 +34,12 @@ module.exports = function (config) {
         included: false,
         served: true
       }, {
-        pattern: 'test/other_libs/*.js',
+        pattern: 'spec/*.hbs',
+        watched: false,
+        included: false,
+        served: true
+      }, {
+        pattern: 'test/other_libs/**/*.js',
         served: true,
         included: false,
         watched: false
