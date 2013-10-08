@@ -708,7 +708,7 @@ describe('graph', function () {
             staticPath: basePath,
             label: {
               data: '/spec/graph_label2_data.json',
-              template: '/spec/graph_label2.template',
+              template: '/spec/graph_label.template',
               hideTotalCount: true,
               hideDeltaCount: true
             }
@@ -724,7 +724,7 @@ describe('graph', function () {
 
         runs(function () {
           expect(graph.labels).toBeDefined();
-          expect($.trim($gc.find('.graph-label').text())).toEqual('<%= str %>')
+          expect($.trim($gc.find('.graph-label').text())).toEqual('Today')
           $gc.trigger('REMOVE');
           window._ = origUnderScore;
         });
@@ -800,7 +800,7 @@ describe('graph', function () {
 
   describe('update graph', function () {
     _.each(['morris.bar', 'morris.line', 'morris.donut', 'morris.area', 'easel.bar', 'easel.motionLine', 'easel.mix', 'css.horizontalBar', 'css.ratioHorizontalBar'], function (type) {
-      if (/easel/.test(type) || !isIE8) {
+      if (!/easel/.test(type) || !isIE8) {
         it('update range', function () {
           var today = moment();
           var data = [];
