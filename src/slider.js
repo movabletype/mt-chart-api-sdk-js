@@ -150,14 +150,14 @@ ChartAPI.Slider.prototype.initEventTarget = function () {
  * @return nothing
  */
 ChartAPI.Slider.prototype.buildSlider = function (sliderMin, sliderMax, values) {
-  var that = this;
+  var options, defaultCallback, events = ['change', 'create', 'slide', 'start', 'stop'], that = this;
   values = values || [this.range.min, this.range.max];
 
   if (this.$slider) {
     this.$slider.destroy();
     this.$slider.remove();
   }
-  this.$slider = $('<div class="slider"></div>').slider({
+  options = {
     'range': true,
     'min': sliderMin,
     'max': sliderMax,
@@ -168,7 +168,19 @@ ChartAPI.Slider.prototype.buildSlider = function (sliderMin, sliderMax, values) 
     'stop': function (e, ui) {
       that.updateGraphAndList(ui.values);
     }
-  }).appendTo(that.$sliderContainer);
+  };
+  events.forEach(function(value) {
+    if (that.config.callback[value]) {
+      defaultCallback = options[value];
+      options[value] = function(e, ui) {
+        that.config.callback[value](e, ui);
+        if (defaultCallback) {
+          defaultCallback(e, ui);
+        }
+      };
+    }
+  });
+  this.$slider = $('<div class="slider"></div>').slider(options).appendTo(that.$sliderContainer);
 
   if (!this.config.hideSliderAmount) {
     this.$amount = $('<div class="amount"></div>');
