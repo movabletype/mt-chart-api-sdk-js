@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/movabletype/mt-chart-api-sdk-js.svg?branch=master)](https://travis-ci.org/movabletype/mt-chart-api-sdk-js)
+
 This JavaScript library is for Movable Type Chart API.
 
 # Development
