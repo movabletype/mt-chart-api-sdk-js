@@ -119,7 +119,7 @@ ChartAPI.Graph.morris.Base.prototype.build_ = function (Morris, data, config, ra
     }
   });
 
-  // IE8(VML) occured error setting smooth false
+  // IE8(VML) occurred error setting smooth false
   if (!ChartAPI.Graph.test.svg) {
     graphConfig.smooth = true;
   }
