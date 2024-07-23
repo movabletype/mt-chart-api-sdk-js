@@ -15,7 +15,7 @@ ChartAPI.Data.getData = function (obj, $container, callback, that) {
       if (!cloneData) {
         if (typeof data === 'string') {
           cloneData = data.toString();
-        } else if (jQuery.isArray(data)) {
+        } else if (Array.isArray(data)) {
           cloneData = jQuery.map(data, function (v) {
             return jQuery.extend({}, v);
           });
@@ -30,7 +30,7 @@ ChartAPI.Data.getData = function (obj, $container, callback, that) {
         '404': 'Data is not found',
         '403': 'Data is forbidden to access'
       };
-      def = 'Some error occured in the data fetching process';
+      def = 'Some error occurred in the data fetching process';
       errorClassName = e.status ? 'error-' + e.status : 'error-unknown';
       if (that) {
         that.$errormsg = jQuery('<div class="error ' + errorClassName + '">' + (status[e.status] || def) + '</div>')

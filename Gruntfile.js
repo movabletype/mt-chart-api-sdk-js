@@ -35,6 +35,12 @@ module.exports = function (grunt) {
       build: ['lib']
     },
     copy: {
+      "morris.js": {
+        files: [
+          { src: 'node_modules/morris.js/morris.css', dest: 'css/morris.css' },
+          { src: 'node_modules/morris.js/morris.min.js', dest: 'deps/morris.min.js' }
+        ]
+      },
       build: {
         files: [{
             expand: true,
@@ -84,5 +90,5 @@ module.exports = function (grunt) {
       }
     }
   });
-  grunt.registerTask('build', ['clean', 'preprocess', 'copy', 'cssmin', 'uglify']);
+  grunt.registerTask('build', ['clean', 'preprocess', 'copy:morris.js', 'copy:build', 'cssmin', 'uglify']);
 };
