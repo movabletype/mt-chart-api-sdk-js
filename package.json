@@ -32,8 +32,5 @@
     "grunt-contrib-watch": "~0.2.0",
     "grunt-preprocess": "~2.3.0",
     "matchdep": "~0.1.2"
-  },
-  "dependencies": {
-    "morris.js": "github:movabletype/morris.js#0.4.3-1"
   }
 }
