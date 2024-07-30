@@ -1,7 +1,7 @@
 {
   "name": "mt-chart-api",
   "description": "Movable Type Chart API SDK",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "https://github.com/movabletype/mt-chart-api-sdk-js",
   "author": "Six Apart, Ltd.",
   "repository": {
