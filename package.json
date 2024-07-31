@@ -1,7 +1,7 @@
 {
   "name": "mt-chart-api",
   "description": "Movable Type Chart API SDK",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "https://github.com/movabletype/mt-chart-api-sdk-js",
   "author": "Six Apart, Ltd.",
   "repository": {
@@ -32,8 +32,5 @@
     "grunt-contrib-watch": "~0.2.0",
     "grunt-preprocess": "~2.3.0",
     "matchdep": "~0.1.2"
-  },
-  "dependencies": {
-    "morris.js": "github:movabletype/morris.js#0.4.3-1"
   }
 }
