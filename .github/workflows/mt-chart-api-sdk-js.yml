@@ -2,7 +2,7 @@ name: movabletype/mt-chart-api-sdk-js
 on:
   push:
     branches:
-    - "**/*"
+    - master
   pull_request:
   schedule:
   - cron: '30 0 * * 0' # Sunday Only
