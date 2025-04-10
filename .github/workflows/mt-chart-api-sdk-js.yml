@@ -5,7 +5,7 @@ on:
     - "**/*"
   pull_request:
   schedule:
-  - cron: 31 22 6 * *
+  - cron: '30 0 * * 0' # Sunday Only
 concurrency:
 #   # This item has no matching transformer
 #   maximum_number_of_builds: 0
