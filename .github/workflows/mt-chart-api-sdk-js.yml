@@ -1,0 +1,27 @@
+name: movabletype/mt-chart-api-sdk-js
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+  schedule:
+  - cron: '30 0 * * 0' # Sunday Only
+concurrency:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
+  group: "${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-node@v4.0.0
+      with:
+        cache: npm
+        node-version: latest
+    - run: npm ci
+    - run: npm install -g grunt-cli
+    - run: grunt build
